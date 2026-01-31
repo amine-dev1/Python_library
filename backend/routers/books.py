@@ -36,7 +36,7 @@ def get_book(
         raise HTTPException(status_code=404, detail="Book not found")
     return book
 
-@router.post("/", response_model=schemas.BookResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/create", response_model=schemas.BookResponse, status_code=status.HTTP_201_CREATED)
 def create_book(
     book: schemas.BookCreate,
     db: Session = Depends(get_db),

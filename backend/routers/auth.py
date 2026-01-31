@@ -43,12 +43,13 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
+    """Login with JSON body"""
     # Find user by username
-    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    user = db.query(models.User).filter(models.User.username == credentials.username).first()
     
     # Verify user and password
-    if not user or not utils.verify_password(form_data.password, user.password_hash):
+    if not user or not utils.verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -105,3 +106,11 @@ async def refresh_token(current_user: models.User = Depends(auth.get_current_use
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/logout")
+def logout(current_user: models.User = Depends(auth.get_current_user)):
+    """
+    Logout the current user. 
+    Note: For JWT, key action is client-side (deleting token).
+    """
+    return {"message": "Successfully logged out"}

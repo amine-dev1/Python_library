@@ -92,6 +92,11 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
+# ============ Login Schema ============
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 # ============ Password Change Schema ============
 class PasswordChange(BaseModel):
     old_password: str

@@ -1,0 +1,122 @@
+API ROUTES & ROLES GUIDE
+========================
+
+--------------------------------------------------------------------------------
+SETUP & INSTALLATION
+--------------------------------------------------------------------------------
+
+1. Navigate to backend directory:
+   cd backend
+
+2. Create Virtual Environment (Optional but recommended):
+   python -m venv venv
+   venv\Scripts\activate  (Windows)
+   source venv/bin/activate (Mac/Linux)
+
+3. Install Requirements:
+   pip install -r requirements.txt
+
+4. Run the Server:
+   python main.py
+
+--------------------------------------------------------------------------------
+USER ROLES
+--------------------------------------------------------------------------------
+1. USER  - Standard access (Borrow books, view own profile/loans).
+2. ADMIN - Full access (Manage books, users, view all loans).
+
+*Note: You must be logged in to access most endpoints.*
+
+--------------------------------------------------------------------------------
+AUTHENTICATION (Public & Authenticated)
+--------------------------------------------------------------------------------
+
+1. REGISTER [Public]
+   POST /auth/register
+   Body (JSON):
+   {
+     "email": "user@example.com",
+     "username": "newuser",
+     "password": "securepassword123"
+   }
+
+2. LOGIN [Public]
+   POST /auth/login
+   Body (JSON):
+   {
+     "username": "admin",
+     "password": "admin123"
+   }
+
+3. LOGOUT [Authenticated: Any Role]
+   POST /auth/logout
+
+4. GET PROFILE [Authenticated: Any Role]
+   GET /auth/me
+
+--------------------------------------------------------------------------------
+BOOKS
+--------------------------------------------------------------------------------
+
+1. GET ALL BOOKS [Authenticated: Any Role]
+   GET /books/
+
+2. GET SINGLE BOOK [Authenticated: Any Role]
+   GET /books/{book_id}
+
+3. CREATE BOOK [Permission: ADMIN ONLY]
+   POST /books/create
+   Body (JSON):
+   {
+     "title": "Book Title",
+     "author": "Author",
+     "isbn": "12345",
+     "total_copies": 5
+   }
+
+4. UPDATE BOOK [Permission: ADMIN ONLY]
+   PUT /books/{book_id}
+
+5. DELETE BOOK [Permission: ADMIN ONLY]
+   DELETE /books/{book_id}
+
+--------------------------------------------------------------------------------
+LOANS
+--------------------------------------------------------------------------------
+
+1. BORROW BOOK [Permission: USER or ADMIN]
+   POST /loans/borrow/{book_id}?days=14
+
+2. RETURN BOOK [Permission: USER (Own Loan) or ADMIN]
+   POST /loans/return/{loan_id}
+
+3. MY LOANS [Permission: USER or ADMIN]
+   GET /loans/my-loans
+   (Returns logged-in user's history)
+
+4. GET ALL LOANS [Permission: ADMIN ONLY]
+   GET /loans/all
+
+5. GET OVERDUE LOANS [Permission: ADMIN ONLY]
+   GET /loans/overdue
+
+6. MANUAL LOAN CREATION [Permission: ADMIN ONLY]
+   POST /loans/
+
+--------------------------------------------------------------------------------
+USERS Management
+--------------------------------------------------------------------------------
+*All routes below require ADMIN Role*
+
+1. GET ALL USERS
+   GET /users/
+
+2. CHANGE USER ROLE
+   PUT /users/{user_id}/role?role=ADMIN
+
+3. ACTIVATE/DEACTIVATE USER
+   PUT /users/{user_id}/activate
+   PUT /users/{user_id}/deactivate
+
+4. DELETE USER
+   DELETE /users/{user_id}

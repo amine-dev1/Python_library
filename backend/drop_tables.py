@@ -14,7 +14,6 @@ engine = create_engine(DATABASE_URL)
 
 try:
     with engine.connect() as connection:
-        # Drop all existing tables
         print("Dropping existing tables...")
         connection.execute(text("DROP TABLE IF EXISTS loans"))
         connection.execute(text("DROP TABLE IF EXISTS books"))
