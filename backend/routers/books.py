@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 
 from database import get_db
 import models
@@ -12,7 +13,7 @@ router = APIRouter(
     tags=["Books"]
 )
 
-@router.get("/", response_model=List[dict])
+@router.get("/", response_model=List[schemas.BookResponse])
 def get_books(
     skip: int = 0,
     limit: int = 100,
@@ -21,24 +22,9 @@ def get_books(
 ):
     """Get all books (requires authentication)"""
     books = db.query(models.Book).offset(skip).limit(limit).all()
-    return [
-        {
-            "id": book.id,
-            "title": book.title,
-            "author": book.author,
-            "isbn": book.isbn,
-            "category": book.category,
-            "description": book.description,
-            "publication_year": book.publication_year,
-            "total_copies": book.total_copies,
-            "available_copies": book.available_copies,
-            "created_at": book.created_at,
-            "updated_at": book.updated_at
-        }
-        for book in books
-    ]
+    return books
 
-@router.get("/{book_id}", response_model=dict)
+@router.get("/{book_id}", response_model=schemas.BookResponse)
 def get_book(
     book_id: int,
     db: Session = Depends(get_db),
@@ -48,68 +34,44 @@ def get_book(
     book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
-    return {
-        "id": book.id,
-        "title": book.title,
-        "author": book.author,
-        "isbn": book.isbn,
-        "category": book.category,
-        "description": book.description,
-        "publication_year": book.publication_year,
-        "total_copies": book.total_copies,
-        "available_copies": book.available_copies,
-        "created_at": book.created_at,
-        "updated_at": book.updated_at
-    }
+    return book
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.BookResponse, status_code=status.HTTP_201_CREATED)
 def create_book(
-    title: str,
-    author: str,
-    isbn: str,
-    category: str = None,
-    description: str = None,
-    publication_year: int = None,
-    total_copies: int = 1,
+    book: schemas.BookCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_active_admin)
 ):
     """Create a new book (requires admin role)"""
     # Check if book with ISBN already exists
-    existing_book = db.query(models.Book).filter(models.Book.isbn == isbn).first()
+    existing_book = db.query(models.Book).filter(models.Book.isbn == book.isbn).first()
     if existing_book:
         raise HTTPException(status_code=400, detail="Book with this ISBN already exists")
     
+    now = datetime.utcnow()
     new_book = models.Book(
-        title=title,
-        author=author,
-        isbn=isbn,
-        category=category,
-        description=description,
-        publication_year=publication_year,
-        total_copies=total_copies,
-        available_copies=total_copies
+        title=book.title,
+        author=book.author,
+        isbn=book.isbn,
+        category=book.category,
+        description=book.description,
+        publication_year=book.publication_year,
+        total_copies=book.total_copies,
+        available_copies=book.total_copies,
+        created_at=now,
+        updated_at=now
     )
     
     db.add(new_book)
     db.commit()
     db.refresh(new_book)
     
-    return {
-        "message": "Book created successfully",
-        "book_id": new_book.id
-    }
+    return new_book
 
-@router.put("/{book_id}")
+@router.put("/{book_id}", response_model=schemas.BookResponse)
 def update_book(
     book_id: int,
-    title: str = None,
-    author: str = None,
-    category: str = None,
-    description: str = None,
-    publication_year: int = None,
-    total_copies: int = None,
+    book_update: schemas.BookUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_active_admin)
 ):
@@ -118,24 +80,27 @@ def update_book(
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
     
-    if title is not None:
-        book.title = title
-    if author is not None:
-        book.author = author
-    if category is not None:
-        book.category = category
-    if description is not None:
-        book.description = description
-    if publication_year is not None:
-        book.publication_year = publication_year
-    if total_copies is not None:
+    if book_update.title is not None:
+        book.title = book_update.title
+    if book_update.author is not None:
+        book.author = book_update.author
+    if book_update.category is not None:
+        book.category = book_update.category
+    if book_update.description is not None:
+        book.description = book_update.description
+    if book_update.publication_year is not None:
+        book.publication_year = book_update.publication_year
+    if book_update.total_copies is not None:
         # Update available copies proportionally
-        diff = total_copies - book.total_copies
-        book.total_copies = total_copies
+        diff = book_update.total_copies - book.total_copies
+        book.total_copies = book_update.total_copies
         book.available_copies = max(0, book.available_copies + diff)
     
+    book.updated_at = datetime.utcnow()
     db.commit()
-    return {"message": "Book updated successfully"}
+    db.refresh(book)
+    
+    return book
 
 @router.delete("/{book_id}")
 def delete_book(
@@ -151,7 +116,7 @@ def delete_book(
     # Check if book has active loans
     active_loans = db.query(models.Loan).filter(
         models.Loan.book_id == book_id,
-        models.Loan.status == models.LoanStatus.BORROWED
+        models.Loan.status.in_([models.LoanStatus.BORROWED, models.LoanStatus.OVERDUE])
     ).count()
     
     if active_loans > 0:

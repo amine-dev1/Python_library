@@ -36,6 +36,52 @@ def get_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.put("/{user_id}", response_model=schemas.UserResponse)
+def update_user(
+    user_id: int,
+    user_update: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_active_admin)
+):
+    """Update user information (admin only)"""
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update fields if provided
+    if user_update.email is not None:
+        # Check if email already exists
+        existing_user = db.query(models.User).filter(
+            models.User.email == user_update.email,
+            models.User.id != user_id
+        ).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=400,
+                detail="Email already registered"
+            )
+        user.email = user_update.email
+    
+    if user_update.username is not None:
+        # Check if username already exists
+        existing_user = db.query(models.User).filter(
+            models.User.username == user_update.username,
+            models.User.id != user_id
+        ).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=400,
+                detail="Username already taken"
+            )
+        user.username = user_update.username
+    
+    from datetime import datetime
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    return user
+
 @router.put("/{user_id}/role")
 def update_user_role(
     user_id: int,
