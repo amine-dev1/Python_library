@@ -3,7 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from dotenv import load_dotenv
-from database import get_db
+from database import get_db, engine
+import models
+from routers import auth, books, loans, users
+
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
+
 
 # Load environment variables
 load_dotenv()
@@ -28,6 +34,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+# Include routers
+print("Loading routers...")
+app.include_router(auth.router)
+app.include_router(books.router)
+app.include_router(loans.router)
+app.include_router(users.router)
+print(f"Routers loaded. Routes: {[route.path for route in app.routes]}")
+
 
 # Root endpoint
 @app.get("/")
