@@ -16,7 +16,6 @@ router = APIRouter(
 
 @router.post("/register", response_model=schemas.UserResponse)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if user already exists
     db_user_email = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user_email:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -25,10 +24,8 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user_username:
         raise HTTPException(status_code=400, detail="Username already taken")
     
-    # Hash password
     hashed_password = utils.get_password_hash(user.password)
     
-    # Create new user
     new_user = models.User(
         email=user.email,
         username=user.username,
@@ -45,10 +42,8 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schemas.Token)
 def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
     """Login with JSON body"""
-    # Find user by username
     user = db.query(models.User).filter(models.User.username == credentials.username).first()
     
-    # Verify user and password
     if not user or not utils.verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,14 +51,12 @@ def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Check if user is active
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is inactive",
         )
     
-    # Create access token
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
         data={"sub": user.username, "role": user.role.value}, expires_delta=access_token_expires

@@ -1,0 +1,495 @@
+
+.login-page *,
+.login-page *::before,
+.login-page *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.login-page {
+  --bg-900: #0f1115;
+  --bg-800: #161a20;
+  --bg-700: #1e232b;
+  --bg-600: #2a303a;
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --accent-primary: #a855f7;
+  --accent-secondary: #9333ea;
+}
+
+
+.login-page {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--bg-900), #070809);
+  color: var(--text-primary);
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* ---------- starfield ---------- */
+.login-page .starfield {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page .star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: lp-twinkle 3s infinite;
+}
+
+@keyframes lp-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---------- moon ---------- */
+.login-page .moon {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #f4f1de,
+    #d4cfc0 40%,
+    #a8a39d 80%
+  );
+  top: -100px;
+  right: -100px;
+  z-index: 1;
+  box-shadow:
+    0 0 80px rgba(244, 241, 222, 0.3),
+    inset -20px -20px 50px rgba(0, 0, 0, 0.2);
+  opacity: 0.6;
+  animation: lp-moonOrbit 120s infinite linear;
+  transform-origin: 300px 300px;
+}
+
+@keyframes lp-moonOrbit {
+  0% {
+    transform: rotate(0deg) translateX(150px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(150px) rotate(-360deg);
+  }
+}
+
+.login-page .crater {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.3)
+  );
+}
+
+.login-page .crater:nth-child(1) {
+  width: 60px;
+  height: 60px;
+  top: 150px;
+  left: 100px;
+}
+.login-page .crater:nth-child(2) {
+  width: 40px;
+  height: 40px;
+  top: 220px;
+  left: 180px;
+}
+.login-page .crater:nth-child(3) {
+  width: 30px;
+  height: 30px;
+  top: 180px;
+  left: 210px;
+}
+.login-page .crater:nth-child(4) {
+  width: 45px;
+  height: 45px;
+  top: 260px;
+  left: 130px;
+}
+
+/* ---------- nebula ---------- */
+.login-page .nebula {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.25),
+    rgba(147, 51, 234, 0.15),
+    transparent
+  );
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 1;
+  filter: blur(60px);
+  animation: lp-nebulaPulse 8s ease-in-out infinite;
+}
+
+@keyframes lp-nebulaPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+/* ---------- orbit ring ---------- */
+.login-page .orbit {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  pointer-events: none;
+  width: 95vw;
+  max-width: 720px;
+  aspect-ratio: 1 / 1;
+  border: 2px solid rgba(168, 85, 247, 0.15);
+  border-radius: 50%;
+  animation: lp-spin 60s infinite linear;
+}
+
+@keyframes lp-spin {
+  100% {
+    rotate: 1turn;
+  }
+}
+
+.login-page .orbit::before,
+.login-page .orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  box-shadow: 0 0 30px var(--accent-primary);
+}
+
+.login-page .orbit::before {
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: -10px;
+}
+
+.login-page .orbit::after {
+  width: 26px;
+  height: 26px;
+  top: 50%;
+  right: -13px;
+}
+
+/* ---------- shooting stars ---------- */
+.login-page .shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fff;
+  animation: lp-shoot 3s linear infinite;
+  opacity: 0;
+}
+
+@keyframes lp-shoot {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-300px, 300px);
+  }
+}
+
+.login-page .shooting-star:nth-child(1) {
+  top: 20%;
+  right: 20%;
+  animation-delay: 0s;
+}
+.login-page .shooting-star:nth-child(2) {
+  top: 40%;
+  right: 60%;
+  animation-delay: 4s;
+}
+.login-page .shooting-star:nth-child(3) {
+  top: 60%;
+  right: 30%;
+  animation-delay: 8s;
+}
+
+/* ---------- planets ---------- */
+.login-page .planet {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.login-page .planet:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  bottom: 100px;
+  left: 80px;
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+}
+
+.login-page .planet:nth-child(2) {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #c084fc,
+    var(--accent-primary)
+  );
+  top: 120px;
+  left: 150px;
+  box-shadow: 0 0 30px rgba(192, 132, 252, 0.5);
+}
+
+/* ---------- auth card ---------- */
+.login-page .auth-container {
+  position: relative;
+  z-index: 2;
+  background: rgba(22, 26, 32, 0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 60px 36px 48px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 2px solid rgba(168, 85, 247, 0.25);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(168, 85, 247, 0.2);
+}
+
+/* ---------- logo ---------- */
+.login-page .logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.5);
+}
+
+/* ---------- headings ---------- */
+.login-page h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary),
+    var(--accent-primary)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-page h3 {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 36px;
+}
+
+/* ---------- form ---------- */
+.login-page .form-container {
+  width: 100%;
+}
+
+.login-page form {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* ---------- floating-label textbox ---------- */
+.login-page .textbox {
+  position: relative;
+}
+
+.login-page .textbox label {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  translate: 0 -50%;
+  transform-origin: 0 50%;
+  pointer-events: none;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  font-size: 15px;
+}
+
+.login-page .textbox input {
+  width: 100%;
+  height: 56px;
+  padding: 20px 16px 8px;
+  background: var(--bg-700);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.login-page .textbox input:focus {
+  background: var(--bg-600);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2);
+}
+
+.login-page .textbox input:is(:focus, :not(:placeholder-shown)) ~ label {
+  scale: 0.75;
+  translate: 0 -130%;
+  color: var(--accent-primary);
+}
+
+/* ---------- forgot link ---------- */
+.login-page .forgot-link {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  margin-top: 8px;
+  color: var(--accent-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0;
+}
+
+.login-page .forgot-link:hover {
+  color: #c084fc;
+}
+
+/* ---------- submit button ---------- */
+.login-page button.submit-btn {
+  width: 100%;
+  height: 56px;
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.5);
+  margin-top: 8px;
+}
+
+.login-page button.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(168, 85, 247, 0.7);
+}
+
+.login-page button.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* ---------- footer nav ---------- */
+.login-page .footer-text {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.login-page .link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.login-page .link:hover {
+  color: #c084fc;
+  text-decoration: underline;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 480px) {
+  .login-page .auth-container {
+    padding: 48px 24px 36px;
+  }
+  .login-page h2 {
+    font-size: 20px;
+  }
+  .login-page .moon {
+    width: 300px;
+    height: 300px;
+    top: -80px;
+    right: -80px;
+  }
+}

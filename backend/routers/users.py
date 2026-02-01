@@ -13,6 +13,40 @@ router = APIRouter(
     tags=["Users"]
 )
 
+@router.post("/", response_model=schemas.UserResponse)
+def create_user(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_active_admin)
+):
+    """Create a new user (admin only)"""
+    # Check if user already exists
+    db_user_email = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    db_user_username = db.query(models.User).filter(models.User.username == user.username).first()
+    if db_user_username:
+        raise HTTPException(status_code=400, detail="Username already taken")
+    
+    # Hash password
+    hashed_password = utils.get_password_hash(user.password)
+    
+    # Create new user
+    new_user = models.User(
+        email=user.email,
+        username=user.username,
+        password_hash=hashed_password,
+        role=models.UserRole.USER,
+        is_active=True
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return new_user
+
 @router.get("/", response_model=List[schemas.UserResponse])
 def get_all_users(
     skip: int = 0,
@@ -48,9 +82,7 @@ def update_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Update fields if provided
     if user_update.email is not None:
-        # Check if email already exists
         existing_user = db.query(models.User).filter(
             models.User.email == user_update.email,
             models.User.id != user_id
@@ -63,7 +95,6 @@ def update_user(
         user.email = user_update.email
     
     if user_update.username is not None:
-        # Check if username already exists
         existing_user = db.query(models.User).filter(
             models.User.username == user_update.username,
             models.User.id != user_id
@@ -94,7 +125,6 @@ def update_user_role(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Validate role
     try:
         new_role = models.UserRole(role)
     except ValueError:
@@ -135,7 +165,6 @@ def deactivate_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Prevent deactivating yourself
     if user.id == current_user.id:
         raise HTTPException(
             status_code=400,
@@ -165,7 +194,6 @@ def delete_user(
             detail="Cannot delete your own account"
         )
     
-    # Check for active loans
     active_loans = db.query(models.Loan).filter(
         models.Loan.user_id == user_id,
         models.Loan.status.in_([models.LoanStatus.BORROWED, models.LoanStatus.OVERDUE])
