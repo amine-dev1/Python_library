@@ -7,6 +7,8 @@ from database import get_db, engine
 import models
 from routers import auth, books, loans, users
 
+
+
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 

@@ -5,6 +5,27 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frontend</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-G5A1f/2mrPp1Fz6qJm/3ZZq57IhBZC1TfNcbfT8O0MwEd4pW9kFfGkJbz8szwFjH" crossorigin="anonymous">
+<!-- Bootstrap Bundle JS (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-rfDKMppV0gEIRzVqE4Kk6Z9Qb5E50gkqIOiLbcqB6gS4R4UuGtb4A1n3gx0xEW4v" crossorigin="anonymous"></script>
+
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          clifford: '#da373d',
+        }
+      }
+    }
+  }
+</script>
+
+
   </head>
   <body>
     <div id="root"></div>
