@@ -14,6 +14,40 @@ router = APIRouter(
 )
 
 # ============ CRUD Operations (Admin) ============
+# ===== USER ROUTES FIRST =====
+
+@router.get("/my-loans", response_model=List[schemas.LoanResponse])
+def get_my_loans(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    loans = db.query(models.Loan).filter(
+        models.Loan.user_id == current_user.id
+    ).all()
+    return loans
+
+
+@router.get("/overdue", response_model=List[schemas.LoanResponse])
+def get_overdue_loans(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_active_admin)
+):
+    now = datetime.utcnow()
+
+    overdue_loans = db.query(models.Loan).filter(
+        models.Loan.status == models.LoanStatus.BORROWED,
+        models.Loan.due_date < now
+    ).all()
+
+    for loan in overdue_loans:
+        loan.status = models.LoanStatus.OVERDUE
+
+    db.commit()
+
+    return db.query(models.Loan).filter(
+        models.Loan.status == models.LoanStatus.OVERDUE
+    ).all()
+
 
 @router.get("/all", response_model=List[schemas.LoanResponse])
 def get_all_loans(
@@ -263,40 +297,40 @@ def return_book(
     
     return {"message": "Book returned successfully"}
 
-@router.get("/my-loans", response_model=List[schemas.LoanResponse])
-def get_my_loans(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user)
-):
-    """Get current user's loan history"""
-    loans = db.query(models.Loan).filter(
-        models.Loan.user_id == current_user.id
-    ).all()
+# @router.get("/my-loans", response_model=List[schemas.LoanResponse])
+# def get_my_loans(
+#     db: Session = Depends(get_db),
+#     current_user: models.User = Depends(auth.get_current_user)
+# ):
+#     """Get current user's loan history"""
+#     loans = db.query(models.Loan).filter(
+#         models.Loan.user_id == current_user.id
+#     ).all()
     
-    return loans
+#     return loans
 
-@router.get("/overdue", response_model=List[schemas.LoanResponse])
-def get_overdue_loans(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_admin)
-):
-    """Get all overdue loans (admin only)"""
-    now = datetime.utcnow()
+# @router.get("/overdue", response_model=List[schemas.LoanResponse])
+# def get_overdue_loans(
+#     db: Session = Depends(get_db),
+#     current_user: models.User = Depends(auth.get_current_active_admin)
+# ):
+#     """Get all overdue loans (admin only)"""
+#     now = datetime.utcnow()
     
-    # Update overdue loans
-    overdue_loans = db.query(models.Loan).filter(
-        models.Loan.status == models.LoanStatus.BORROWED,
-        models.Loan.due_date < now
-    ).all()
+#     # Update overdue loans
+#     overdue_loans = db.query(models.Loan).filter(
+#         models.Loan.status == models.LoanStatus.BORROWED,
+#         models.Loan.due_date < now
+#     ).all()
     
-    for loan in overdue_loans:
-        loan.status = models.LoanStatus.OVERDUE
+#     for loan in overdue_loans:
+#         loan.status = models.LoanStatus.OVERDUE
     
-    db.commit()
+#     db.commit()
     
-    # Get all overdue loans
-    all_overdue = db.query(models.Loan).filter(
-        models.Loan.status == models.LoanStatus.OVERDUE
-    ).all()
+#     # Get all overdue loans
+#     all_overdue = db.query(models.Loan).filter(
+#         models.Loan.status == models.LoanStatus.OVERDUE
+#     ).all()
     
-    return all_overdue
+#     return all_overdue
