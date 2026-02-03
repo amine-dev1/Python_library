@@ -65,6 +65,9 @@ Le backend est construit avec **FastAPI** (Python 3.13+) pour une API performant
 - **Uvicorn** - Serveur ASGI ultra-rapide
 - **Pydantic** - Validation de données utilisant les indications de type Python
 - **Auto-Docs** - Documentation API interactive automatisée (Swagger/ReDoc)
+- **SQLAlchemy** - ORM pour l'interaction avec la base de données
+- **MySQL Connector** - Pilote pour la connexion à MySQL
+- **Passlib & Python-Jose** - Gestion sécurisée des mots de passe et tokens JWT
 
 ### Pour Commencer
 
@@ -100,8 +103,8 @@ La documentation interactive de l'API est disponible sur `http://localhost:8000/
 ## Technologies
 
 - **Frontend** : React 19, Vite, Tailwind CSS 4
-- **Backend** : Python 3.13, FastAPI, Uvicorn
-- **Outils** : Axios, React Router v7, Lucide React
+- **Backend** : Python 3.13, FastAPI, Uvicorn, SQLAlchemy, MySQL
+- **Outils** : Axios, React Router v7, Lucide React, Recharts, React Hot Toast
 
 ## Installation Complète du Projet
 
