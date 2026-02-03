@@ -17,20 +17,18 @@ router = APIRouter(
 def get_books(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    db: Session = Depends(get_db)
 ):
-    """Get all books (requires authentication)"""
+    """Get all books (public)"""
     books = db.query(models.Book).offset(skip).limit(limit).all()
     return books
 
 @router.get("/{book_id}", response_model=schemas.BookResponse)
 def get_book(
     book_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    db: Session = Depends(get_db)
 ):
-    """Get a specific book by ID (requires authentication)"""
+    """Get a specific book by ID (public)"""
     book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -55,6 +53,7 @@ def create_book(
         isbn=book.isbn,
         category=book.category,
         description=book.description,
+        image_url=book.image_url,
         publication_year=book.publication_year,
         total_copies=book.total_copies,
         available_copies=book.total_copies,
@@ -88,6 +87,8 @@ def update_book(
         book.category = book_update.category
     if book_update.description is not None:
         book.description = book_update.description
+    if book_update.image_url is not None:
+        book.image_url = book_update.image_url
     if book_update.publication_year is not None:
         book.publication_year = book_update.publication_year
     if book_update.total_copies is not None:

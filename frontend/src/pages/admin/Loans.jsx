@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import {
   allLoans,
   returnBook,
@@ -35,6 +36,11 @@ export default function AdminLoans() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedLoan, setSelectedLoan] = useState(null);
+
+  // Confirmation Modal for Return
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [loanToReturn, setLoanToReturn] = useState(null);
+
   const [formData, setFormData] = useState({
     book_id: "",
     user_id: "",
@@ -137,6 +143,10 @@ export default function AdminLoans() {
     e.preventDefault();
     setErrorMsg("");
 
+    const loadingToast = toast.loading(
+      modalMode === "create" ? "Création de l'emprunt..." : "Mise à jour de l'emprunt..."
+    );
+
     try {
       const payload = {
         book_id: Number(formData.book_id),
@@ -147,31 +157,103 @@ export default function AdminLoans() {
       };
 
       if (modalMode === "create") {
-        // En création, le backend peut ignorer ou forcer le status
-        // Si besoin : delete payload.status;
         await createLoan(payload);
+        toast.success("Emprunt créé avec succès!", {
+          id: loadingToast,
+          duration: 4000,
+          style: {
+            background: '#10b981',
+            color: '#fff',
+            fontWeight: '600',
+            padding: '16px',
+            borderRadius: '12px',
+          },
+        });
       } else if (selectedLoan?.id) {
         await updateLoan(selectedLoan.id, payload);
+        toast.success("Emprunt mis à jour!", {
+          id: loadingToast,
+          duration: 4000,
+          style: {
+            background: '#3b82f6',
+            color: '#fff',
+            fontWeight: '600',
+            padding: '16px',
+            borderRadius: '12px',
+          },
+        });
       }
 
       setShowModal(false);
       fetchData();
     } catch (err) {
       console.error("Erreur sauvegarde:", err);
-      setErrorMsg(
-        err.response?.data?.message ||
-          "Échec de l'enregistrement. Vérifiez la console et les champs."
-      );
+      const errorMessage = err.response?.data?.message ||
+        "Échec de l'enregistrement. Vérifiez la console et les champs.";
+
+      toast.error(errorMessage, {
+        id: loadingToast,
+        duration: 5000,
+        style: {
+          background: '#ef4444',
+          color: '#fff',
+          fontWeight: '600',
+          padding: '16px',
+          borderRadius: '12px',
+        },
+      });
+      setErrorMsg(errorMessage);
     }
   };
 
-  const handleReturn = async (id) => {
-    if (!window.confirm("Confirmer le retour du livre ?")) return;
+  const openReturnModal = (loan) => {
+    setLoanToReturn(loan);
+    setShowConfirmModal(true);
+  };
+
+  const confirmReturn = async () => {
+    if (!loanToReturn) return;
+    setShowConfirmModal(false);
+
+    const loadingToast = toast.loading("Traitement du retour...", {
+      style: {
+        background: '#3b82f6',
+        color: '#fff',
+        fontWeight: '600',
+        padding: '16px',
+        borderRadius: '12px',
+      },
+    });
+
     try {
-      await returnBook(id);
+      await returnBook(loanToReturn.id);
+      toast.success("📚 Livre retourné avec succès!", {
+        id: loadingToast,
+        duration: 4000,
+        style: {
+          background: '#10b981',
+          color: '#fff',
+          fontWeight: '600',
+          padding: '16px',
+          borderRadius: '12px',
+        },
+      });
       fetchData();
     } catch (err) {
+      toast.error("❌ Échec du retour du livre", {
+        id: loadingToast,
+        duration: 4000,
+        style: {
+          background: '#ef4444',
+          color: '#fff',
+          fontWeight: '600',
+          padding: '16px',
+          borderRadius: '12px',
+        },
+      });
       setErrorMsg("Échec du retour du livre");
+    } finally {
+      setLoanToReturn(null);
     }
   };
 
@@ -185,11 +267,46 @@ export default function AdminLoans() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        containerStyle={{
+          top: 80,
+          right: 20,
+          zIndex: 99999,
+        }}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            fontSize: '14px',
+            maxWidth: '500px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+          loading: {
+            iconTheme: {
+              primary: '#3b82f6',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div className="flex items-center gap-4">
-            <div className="bg-indigo-900 p-4 rounded-2xl shadow-lg" style={{background:'#1a1b41'}}>
+            <div className="bg-indigo-900 p-4 rounded-2xl shadow-lg" style={{ background: '#1a1b41' }}>
               <BookOpen className="text-white" size={32} />
             </div>
             <div>
@@ -201,7 +318,7 @@ export default function AdminLoans() {
           <button
             onClick={openCreate}
             className="bg-indigo-800 hover:bg-indigo-900 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-md transition-all"
-          style={{background:'#1a1b41'}}>
+            style={{ background: '#1a1b41' }}>
             <Plus size={20} /> Nouvel emprunt
           </button>
         </div>
@@ -267,7 +384,7 @@ export default function AdminLoans() {
                   key={loan.id}
                   className="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  <div className="bg-indigo-900 px-6 py-5" style={{background:'#1a1b41'}}>
+                  <div className="bg-indigo-900 px-6 py-5" style={{ background: '#1a1b41' }}>
                     <h3 className="text-white font-semibold text-lg line-clamp-2">
                       {loan.book?.title || `Livre #${loan.book_id}`}
                     </h3>
@@ -293,9 +410,9 @@ export default function AdminLoans() {
                         <span>
                           {loan.loan_date
                             ? new Date(loan.loan_date).toLocaleString("fr-FR", {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })
                             : "—"}
                         </span>
                       </div>
@@ -321,7 +438,7 @@ export default function AdminLoans() {
                     <div className="flex gap-3 mt-5">
                       {loan.status !== "RETURNED" && (
                         <button
-                          onClick={() => handleReturn(loan.id)}
+                          onClick={() => openReturnModal(loan)}
                           className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
                         >
                           <RotateCcw size={16} /> Retour
@@ -468,6 +585,40 @@ export default function AdminLoans() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* CONFIRMATION MODAL */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100] backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 opacity-100">
+              <div className="p-6 text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 mb-6">
+                  <RotateCcw className="h-8 w-8 text-indigo-900" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Confirmer le retour ?</h3>
+                <p className="text-gray-500 mb-6">
+                  Vous êtes sur le point de marquer le livre <br />
+                  <span className="font-semibold text-indigo-900">"{loanToReturn?.book?.title}"</span> <br />
+                  comme retourné. Cette action est irréversible.
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setShowConfirmModal(false)}
+                    className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={confirmReturn}
+                    className="flex-1 py-3 px-4 bg-indigo-900 hover:bg-indigo-800 text-white rounded-xl font-semibold shadow-lg transition-transform active:scale-95"
+                    style={{ background: '#1a1b41' }}
+                  >
+                    Confirmer
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

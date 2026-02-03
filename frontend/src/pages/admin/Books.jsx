@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { getBooks, createBook, updateBook, deleteBook } from "../../api/books.api";
 import { BookOpen, Plus, Edit2, Trash2, X, Search, Book } from "lucide-react";
 
@@ -16,6 +17,10 @@ export default function AdminBooks() {
     isbn: "",
     description: "",
   });
+
+  // Delete Confirmation Modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState(null);
 
   useEffect(() => {
     fetchBooks();
@@ -62,26 +67,61 @@ export default function AdminBooks() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const loadingToast = toast.loading(
+      modalMode === "create" ? "Création du livre..." : "Mise à jour du livre..."
+    );
+
     try {
       if (modalMode === "create") {
         await createBook(formData);
+        toast.success("Livre créé avec succès!", {
+          id: loadingToast,
+          style: { background: '#10b981', color: '#fff', fontWeight: '600' }
+        });
       } else {
         await updateBook(selectedBook._id || selectedBook.id, formData);
+        toast.success("Livre mis à jour!", {
+          id: loadingToast,
+          style: { background: '#3b82f6', color: '#fff', fontWeight: '600' }
+        });
       }
       setShowModal(false);
       fetchBooks();
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
+      toast.error("Erreur lors de l'opération", {
+        id: loadingToast,
+        style: { background: '#ef4444', color: '#fff', fontWeight: '600' }
+      });
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce livre ?")) return;
+  const openDeleteModal = (book) => {
+    setBookToDelete(book);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!bookToDelete) return;
+    setShowConfirmModal(false);
+
+    const loadingToast = toast.loading("Suppression du livre...");
+
     try {
-      await deleteBook(id);
+      await deleteBook(bookToDelete._id || bookToDelete.id);
+      toast.success("Livre supprimé avec succès!", {
+        id: loadingToast,
+        style: { background: '#ef4444', color: '#fff', fontWeight: '600' }
+      });
       fetchBooks();
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
+      toast.error("Impossible de supprimer ce livre", {
+        id: loadingToast,
+        style: { background: '#ef4444', color: '#fff', fontWeight: '600' }
+      });
+    } finally {
+      setBookToDelete(null);
     }
   };
 
@@ -102,6 +142,7 @@ export default function AdminBooks() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
+        <Toaster containerStyle={{ zIndex: 99999 }} />
         {/* Header avec animation */}
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center gap-3 mb-3">
@@ -121,24 +162,24 @@ export default function AdminBooks() {
 
         {/* Stats rapides */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="rounded-2xl p-4 shadow-sm border border-gray-100" style={{background:'#1a1b41'}}>
-            <p className="text-xs text-gray-500 uppercase font-semibold mb-1"style={{color:'#ffffff'}}>Total Livres</p>
+          <div className="rounded-2xl p-4 shadow-sm border border-gray-100" style={{ background: '#1a1b41' }}>
+            <p className="text-xs text-gray-500 uppercase font-semibold mb-1" style={{ color: '#ffffff' }}>Total Livres</p>
             <p className="text-2xl font-bold text-purple-600">{books.length}</p>
           </div>
-          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{background:'#1a1b41'}}>
-            <p className="text-xs text-gray-500 uppercase font-semibold mb-1"style={{color:'#ffffff'}}>Disponibles</p>
+          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{ background: '#1a1b41' }}>
+            <p className="text-xs text-gray-500 uppercase font-semibold mb-1" style={{ color: '#ffffff' }}>Disponibles</p>
             <p className="text-2xl font-bold text-green-600">
               {books.filter(b => b.available !== false).length}
             </p>
           </div>
-          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{background:'#1a1b41'}}>
-            <p className="text-xs text-gray-500 uppercase font-semibold mb-1"style={{color:'#ffffff'}}>Empruntés</p>
+          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{ background: '#1a1b41' }}>
+            <p className="text-xs text-gray-500 uppercase font-semibold mb-1" style={{ color: '#ffffff' }}>Empruntés</p>
             <p className="text-2xl font-bold text-orange-600">
               {books.filter(b => b.available === false).length}
             </p>
           </div>
-          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{background:'#1a1b41'}}>
-            <p className="text-xs text-gray-500 uppercase font-semibold mb-1"style={{color:'#ffffff'}}>Catégories</p>
+          <div className=" rounded-2xl p-4 shadow-sm border border-gray-100" style={{ background: '#1a1b41' }}>
+            <p className="text-xs text-gray-500 uppercase font-semibold mb-1" style={{ color: '#ffffff' }}>Catégories</p>
             <p className="text-2xl font-bold text-purple-600">
               {new Set(books.map(b => b.category)).size}
             </p>
@@ -223,11 +264,10 @@ export default function AdminBooks() {
                     </span>
                     {book.available !== undefined && (
                       <span
-                        className={`inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-full ${
-                          book.available
+                        className={`inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-full ${book.available
                             ? "bg-green-100 text-green-700"
                             : "bg-orange-100 text-orange-700"
-                        }`}
+                          }`}
                       >
                         {book.available ? "✓ Disponible" : "⊗ Emprunté"}
                       </span>
@@ -257,7 +297,7 @@ export default function AdminBooks() {
                       <span className="text-sm">Modifier</span>
                     </button>
                     <button
-                      onClick={() => handleDelete(book._id || book.id)}
+                      onClick={() => openDeleteModal(book)}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-500 text-red-600 hover:text-white rounded-xl font-semibold transition-all duration-200 group/btn"
                     >
                       <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
@@ -385,6 +425,36 @@ export default function AdminBooks() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center animate-scale-in">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="text-red-600" size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Supprimer ce livre ?</h3>
+              <p className="text-gray-500 mb-6">
+                Êtes-vous sûr de vouloir supprimer <span className="font-bold text-gray-800">"{bookToDelete?.title}"</span> ? <br />
+                Cette action est irréversible.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                >
+                  Supprimer
+                </button>
+              </div>
             </div>
           </div>
         )}

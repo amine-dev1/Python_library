@@ -46,6 +46,7 @@ class Book(Base):
 
     category = Column(String(100))
     description = Column(String(500))
+    image_url = Column(String(500), nullable=True)
 
     publication_year = Column(Integer)
 

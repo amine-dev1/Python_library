@@ -5,6 +5,8 @@ import RequireAdmin from "../auth/RequireAdmin";
 import UserLayout from "../layouts/UserLayout";
 import AdminLayout from "../layouts/AdminLayout";
 
+import Home from "../pages/public/Home";
+import Catalog from "../pages/public/Catalog";
 import Login from "../pages/public/Login";
 import Register from "../pages/public/Register";
 import ForgotPassword from "../pages/public/ForgotPassword";
@@ -22,6 +24,8 @@ import AdminLoans from "../pages/admin/Loans";
 export default function AppRoutes() {
     return (
         <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/books" element={<Catalog />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

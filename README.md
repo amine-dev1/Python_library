@@ -23,6 +23,28 @@ Le frontend est construit avec **React** et **Vite** pour un développement rapi
 - **React Router DOM** - Routage déclaratif pour les applications React
 - **Tailwind CSS** - Framework CSS utilitaire pour le style
 - **Lucide React** - Bibliothèque d'icônes belle et cohérente
+- **Recharts** - Bibliothèque de graphiques composables pour React
+- **React Hot Toast** - Notifications toast élégantes et personnalisables
+
+### Commandes d'Installation
+
+Installation de tous les paquets :
+```bash
+cd frontend
+npm install
+```
+
+Installation des paquets individuels (si nécessaire) :
+```bash
+npm install react react-dom
+npm install -D vite @vitejs/plugin-react
+npm install axios
+npm install react-router-dom
+npm install -D tailwindcss postcss autoprefixer
+npm install lucide-react
+npm install recharts
+npm install react-hot-toast
+```
 
 ### Pour Commencer
 

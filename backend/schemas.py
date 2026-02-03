@@ -34,6 +34,7 @@ class BookBase(BaseModel):
     isbn: str
     category: Optional[str] = None
     description: Optional[str] = None
+    image_url: Optional[str] = None
     publication_year: Optional[int] = None
     total_copies: int = Field(default=1, ge=1)
 
@@ -45,6 +46,7 @@ class BookUpdate(BaseModel):
     author: Optional[str] = None
     category: Optional[str] = None
     description: Optional[str] = None
+    image_url: Optional[str] = None
     publication_year: Optional[int] = None
     total_copies: Optional[int] = Field(default=None, ge=1)
 
