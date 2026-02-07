@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { getBooks, createBook, updateBook, deleteBook } from "../../api/books.api";
-import { BookOpen, Plus, Edit2, Trash2, X, Search, Book } from "lucide-react";
+import { BookOpen, Plus, Edit2, Trash2, X, Search, Book, Upload, Image as ImageIcon } from "lucide-react";
+import axios from "axios";
 
 export default function AdminBooks() {
   const [books, setBooks] = useState([]);
@@ -16,7 +17,9 @@ export default function AdminBooks() {
     category: "",
     isbn: "",
     description: "",
+    image_url: "",
   });
+  const [uploading, setUploading] = useState(false);
 
   // Delete Confirmation Modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -48,7 +51,7 @@ export default function AdminBooks() {
 
   const handleCreate = () => {
     setModalMode("create");
-    setFormData({ title: "", author: "", category: "", isbn: "", description: "" });
+    setFormData({ title: "", author: "", category: "", isbn: "", description: "", image_url: "" });
     setShowModal(true);
   };
 
@@ -61,8 +64,36 @@ export default function AdminBooks() {
       category: book.category || "",
       isbn: book.isbn || "",
       description: book.description || "",
+      image_url: book.image_url || "",
     });
     setShowModal(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    setUploading(true);
+    const loadingToast = toast.loading("Téléchargement de l'image...");
+
+    try {
+      const response = await axios.post("http://localhost:8000/upload", formDataUpload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      setFormData({ ...formData, image_url: response.data.url });
+      toast.success("Image téléchargée avec succès!", { id: loadingToast });
+    } catch (error) {
+      console.error("Erreur upload:", error);
+      toast.error("Erreur lors du téléchargement de l'image", { id: loadingToast });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -199,7 +230,7 @@ export default function AdminBooks() {
                 placeholder="Rechercher par titre, auteur ou catégorie..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all placeholder:text-gray-400 text-sm font-medium"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all placeholder:text-gray-400 text-sm font-medium text-gray-900"
               />
             </div>
 
@@ -239,69 +270,86 @@ export default function AdminBooks() {
             {filteredBooks.map((book) => (
               <div
                 key={book._id || book.id}
-                className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
               >
-                {/* Card Header avec icône */}
-                <div className="bg-gradient-to-br from-[#1a1b41] to-[#2a2b51] p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
-                  <div className="relative">
-                    <div className="bg-white/10 backdrop-blur-sm w-14 h-14 rounded-xl flex items-center justify-center mb-3">
-                      <BookOpen size={24} className="text-white" />
+                {/* Book Image Cover */}
+                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                  {book.image_url ? (
+                    <img 
+                      src={book.image_url} 
+                      alt={book.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+                      <BookOpen size={48} className="mb-2 opacity-20" />
+                      <span className="text-xs font-medium opacity-40 uppercase tracking-wider">Pas d'image</span>
                     </div>
-                    <h3 className="font-bold text-white text-lg mb-1 line-clamp-2 leading-tight">
-                      {book.title}
-                    </h3>
-                    <p className="text-white/70 text-sm font-medium">{book.author}</p>
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-5">
+                  )}
+                  
+                  {/* Overlay gradien */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                  
                   {/* Category Badge */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="inline-flex items-center text-xs font-bold bg-[#1a1b41] text-white px-3 py-1.5 rounded-full">
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center text-xs font-bold bg-white/90 backdrop-blur-sm text-[#1a1b41] px-2.5 py-1 rounded-full shadow-sm">
                       {book.category}
                     </span>
+                  </div>
+
+                  {/* Status Badge */}
+                   <div className="absolute top-3 right-3">
                     {book.available !== undefined && (
                       <span
-                        className={`inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-full ${book.available
-                            ? "bg-green-100 text-green-700"
-                            : "bg-orange-100 text-orange-700"
+                        className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full shadow-sm backdrop-blur-sm ${book.available
+                            ? "bg-green-500/90 text-white"
+                            : "bg-orange-500/90 text-white"
                           }`}
                       >
-                        {book.available ? "✓ Disponible" : "⊗ Emprunté"}
+                        {book.available ? "Disponible" : "Emprunté"}
                       </span>
                     )}
                   </div>
 
+                  {/* Title & Author on image (bottom) */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="font-bold text-lg leading-tight mb-1 drop-shadow-md line-clamp-2">
+                       {book.title}
+                    </h3>
+                    <p className="text-white/80 text-sm font-medium drop-shadow-md truncate">{book.author}</p>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-4 flex-1 flex flex-col">
                   {/* ISBN */}
                   {book.isbn && (
-                    <div className="mb-4 bg-gray-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 uppercase font-semibold mb-1">ISBN</p>
-                      <p className="text-xs font-mono font-bold text-gray-700">{book.isbn}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3 pb-3 border-b border-gray-100">
+                      <span className="uppercase font-semibold">ISBN</span>
+                      <span className="font-mono font-bold text-gray-700">{book.isbn}</span>
                     </div>
                   )}
 
                   {/* Description */}
                   {book.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">{book.description}</p>
+                    <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">{book.description}</p>
                   )}
 
                   {/* Actions */}
-                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                  <div className="flex gap-2 pt-2 mt-auto">
                     <button
                       onClick={() => handleEdit(book)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-[#1a1b41] text-gray-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group/btn"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 hover:bg-[#1a1b41] text-gray-700 hover:text-white rounded-lg font-semibold transition-all duration-200 group/btn"
                     >
                       <Edit2 size={16} className="group-hover/btn:rotate-12 transition-transform" />
-                      <span className="text-sm">Modifier</span>
+                      <span className="text-xs">Modifier</span>
                     </button>
                     <button
                       onClick={() => openDeleteModal(book)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-500 text-red-600 hover:text-white rounded-xl font-semibold transition-all duration-200 group/btn"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-500 text-red-600 hover:text-white rounded-lg font-semibold transition-all duration-200 group/btn"
                     >
                       <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
-                      <span className="text-sm">Supprimer</span>
+                      <span className="text-xs">Supprimer</span>
                     </button>
                   </div>
                 </div>
@@ -313,9 +361,9 @@ export default function AdminBooks() {
         {/* Modal amélioré */}
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden animate-scale-in">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-scale-in flex flex-col">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-[#1a1b41] to-[#2a2b51] text-white p-6 relative overflow-hidden">
+              <div className="bg-gradient-to-r from-[#1a1b41] to-[#2a2b51] text-white p-6 relative overflow-hidden shrink-0">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20"></div>
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -341,75 +389,128 @@ export default function AdminBooks() {
               </div>
 
               {/* Modal Body */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[calc(90vh-140px)]">
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-gray-700">
-                    Titre du livre <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium"
-                    placeholder="Ex: Clean Code"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-gray-700">
-                    Auteur <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.author}
-                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium"
-                    placeholder="Ex: Robert C. Martin"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-bold text-gray-700">
-                      Catégorie <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium"
-                      placeholder="Ex: Programming"
-                    />
+              <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Left Column - Image Upload */}
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Couverture</label>
+                    <div className="relative group">
+                       <div className={`aspect-[2/3] rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center overflow-hidden transition-all ${!formData.image_url ? 'hover:border-[#1a1b41] hover:bg-gray-100' : 'border-none'}`}>
+                          {formData.image_url ? (
+                            <div className="relative w-full h-full">
+                              <img src={formData.image_url} alt="Cover preview" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold border border-white/50">Modifier</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center p-4">
+                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 text-gray-400 group-hover:bg-[#1a1b41] group-hover:text-white transition-colors">
+                                <ImageIcon size={24} />
+                              </div>
+                              <p className="text-xs text-gray-500 font-medium">Glisser ou cliquer pour ajouter</p>
+                            </div>
+                          )}
+                          
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            disabled={uploading}
+                          />
+                       </div>
+                       {uploading && (
+                         <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl">
+                           <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#1a1b41]"></div>
+                         </div>
+                       )}
+                    </div>
+                    
+                    {formData.image_url && (
+                       <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, image_url: ""})}
+                        className="w-full mt-2 text-xs text-red-500 hover:text-red-700 font-semibold flex items-center justify-center gap-1"
+                      >
+                        <Trash2 size={12} /> Supprimer l'image
+                      </button>
+                    )}
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-bold text-gray-700">ISBN</label>
-                    <input
-                      type="text"
-                      value={formData.isbn}
-                      onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium font-mono text-sm"
-                      placeholder="978-0132350884"
-                    />
-                  </div>
-                </div>
+                  {/* Right Column - Form Fields */}
+                  <div className="md:col-span-2 space-y-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-gray-700">
+                        Titre du livre <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium text-gray-900"
+                        placeholder="Ex: Clean Code"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-gray-700">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows="4"
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all resize-none font-medium"
-                    placeholder="Décrivez brièvement le livre..."
-                  />
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-gray-700">
+                        Auteur <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.author}
+                        onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium text-gray-900"
+                        placeholder="Ex: Robert C. Martin"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-gray-700">
+                          Catégorie <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium text-gray-900"
+                          placeholder="Ex: Programming"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-gray-700">ISBN</label>
+                        <input
+                          type="text"
+                          value={formData.isbn}
+                          onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                          className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all font-medium font-mono text-sm text-gray-900"
+                          placeholder="978-0132350884"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-gray-700">Description</label>
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        rows="3"
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all resize-none font-medium text-gray-900"
+                        placeholder="Décrivez brièvement le livre..."
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-6 mt-2 border-t border-gray-100">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}

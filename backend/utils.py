@@ -5,7 +5,8 @@ import bcrypt
 pwd_context = CryptContext(
     schemes=["bcrypt"], 
     deprecated="auto",
-    bcrypt__ident="2b"
+    bcrypt__ident="2b",
+    bcrypt__default_rounds=12
 )
 
 def verify_password(plain_password, hashed_password):

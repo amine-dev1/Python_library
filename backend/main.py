@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from dotenv import load_dotenv
 from database import get_db, engine
 import models
-from routers import auth, books, loans, users
+from routers import auth, books, loans, users, upload
 
 
 
@@ -44,6 +45,11 @@ app.include_router(auth.router)
 app.include_router(books.router)
 app.include_router(loans.router)
 app.include_router(users.router)
+app.include_router(upload.router)
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 print(f"Routers loaded. Routes: {[route.path for route in app.routes]}")
 
 

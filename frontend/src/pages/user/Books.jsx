@@ -10,384 +10,8 @@ import {
   BookMarked,
   Sparkles,
   Library,
+  ChevronDown,
 } from "lucide-react";
-
-// ─── Shared palette (matches Login / Register / Dashboard) ───
-const C = {
-  bg: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
-  card: "rgba(255,255,255,0.07)",
-  cardHover: "rgba(255,255,255,0.12)",
-  border: "rgba(255,255,255,0.15)",
-  borderPurple: "rgba(167,139,250,0.3)",
-  text: "#ffffff",
-  textSub: "rgba(255,255,255,0.55)",
-  accent: "#a78bfa",
-  accentDark: "#6c63ff",
-  pink: "#ec4899",
-  green: "#34d399",
-  blue: "#60a5fa",
-  red: "#f87171",
-};
-
-const styles = {
-  // ── layout ──
-  page: {
-    minHeight: "100vh",
-    background: C.bg,
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-  },
-  starfield: {
-    position: "absolute",
-    inset: 0,
-    zIndex: 0,
-    pointerEvents: "none",
-  },
-  content: {
-    position: "relative",
-    zIndex: 10,
-    padding: "28px 24px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-
-  // ── header ──
-  headerRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    marginBottom: "28px",
-  },
-  headerIconWrap: {
-    position: "relative",
-    width: "52px",
-    height: "52px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerIconGlow: {
-    position: "absolute",
-    inset: 0,
-    background: `${C.accentDark}30`,
-    borderRadius: "50%",
-    filter: "blur(14px)",
-  },
-  headerIcon: {
-    position: "relative",
-    width: "48px",
-    height: "48px",
-    borderRadius: "14px",
-    background: `linear-gradient(135deg, ${C.accentDark}40, ${C.pink}30)`,
-    border: `1px solid ${C.accentDark}55`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: "1.9rem",
-    fontWeight: 800,
-    background: `linear-gradient(90deg, ${C.accent}, ${C.accentDark})`,
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    margin: 0,
-  },
-  headerSub: {
-    fontSize: "0.8rem",
-    color: C.textSub,
-    margin: "3px 0 0",
-  },
-
-  // ── search / filter row ──
-  searchRow: {
-    display: "flex",
-    gap: "12px",
-    marginBottom: "14px",
-    flexWrap: "wrap",
-  },
-  searchWrap: {
-    flex: "1 1 240px",
-    position: "relative",
-  },
-  searchInput: {
-    width: "100%",
-    padding: "11px 14px 11px 38px",
-    borderRadius: "12px",
-    border: `1px solid ${C.borderPurple}`,
-    background: "rgba(255,255,255,0.06)",
-    color: C.text,
-    fontSize: "0.8rem",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
-  },
-  searchIcon: {
-    position: "absolute",
-    left: "12px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    pointerEvents: "none",
-  },
-  filterWrap: {
-    position: "relative",
-    minWidth: "200px",
-    flex: "0 1 220px",
-  },
-  filterSelect: {
-    width: "100%",
-    padding: "11px 36px 11px 38px",
-    borderRadius: "12px",
-    border: `1px solid ${C.borderPurple}`,
-    background: "rgba(255,255,255,0.06)",
-    color: C.text,
-    fontSize: "0.8rem",
-    outline: "none",
-    appearance: "none",
-    cursor: "pointer",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s",
-  },
-  filterIcon: {
-    position: "absolute",
-    left: "12px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    pointerEvents: "none",
-  },
-  filterArrow: {
-    position: "absolute",
-    right: "12px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    pointerEvents: "none",
-  },
-
-  // ── stats bar ──
-  statsBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px",
-    flexWrap: "wrap",
-    background: `linear-gradient(135deg, ${C.accentDark}12, ${C.pink}0a)`,
-    border: `1px solid ${C.borderPurple}`,
-    borderRadius: "12px",
-    padding: "12px 18px",
-    marginBottom: "24px",
-  },
-  statItem: { display: "flex", alignItems: "center", gap: "10px" },
-  statBubble: (color) => ({
-    width: "34px",
-    height: "34px",
-    borderRadius: "9px",
-    background: `${color}18`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }),
-  statNum: (color) => ({
-    fontSize: "1.05rem",
-    fontWeight: 700,
-    color,
-    margin: 0,
-  }),
-  statTxt: {
-    fontSize: "0.7rem",
-    color: C.textSub,
-    margin: 0,
-  },
-  statDivider: {
-    width: "1px",
-    height: "28px",
-    background: C.borderPurple,
-  },
-
-  // ── book card ──
-  bookCard: {
-    background: C.card,
-    backdropFilter: "blur(12px)",
-    border: `1px solid ${C.border}`,
-    borderRadius: "16px",
-    overflow: "hidden",
-    transition: "transform 0.2s, border-color 0.2s, box-shadow 0.2s",
-    display: "flex",
-    flexDirection: "column",
-  },
-  cardAccent: (available) => ({
-    height: "3px",
-    background: available
-      ? `linear-gradient(90deg, ${C.green}, #10b981)`
-      : `linear-gradient(90deg, ${C.red}, #ef4444)`,
-  }),
-  cardBody: {
-    padding: "18px",
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-  },
-  cardTitleRow: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: "10px",
-    marginBottom: "12px",
-  },
-  cardTitle: {
-    fontSize: "0.88rem",
-    fontWeight: 700,
-    color: C.text,
-    margin: 0,
-    lineHeight: 1.3,
-    display: "-webkit-box",
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-    flex: 1,
-  },
-  cardCategory: {
-    fontSize: "0.58rem",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    color: C.accent,
-    background: `${C.accentDark}22`,
-    border: `1px solid ${C.accentDark}44`,
-    borderRadius: "6px",
-    padding: "3px 8px",
-    whiteSpace: "nowrap",
-  },
-  cardMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    fontSize: "0.72rem",
-    color: C.textSub,
-    marginBottom: "6px",
-  },
-  cardMetaIcon: (color) => ({
-    width: "26px",
-    height: "26px",
-    borderRadius: "7px",
-    background: "rgba(255,255,255,0.06)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }),
-  cardSpacer: { flex: 1 },
-  cardDivider: {
-    height: "1px",
-    background: "rgba(255,255,255,0.08)",
-    margin: "14px 0 12px",
-  },
-  availRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    fontSize: "0.7rem",
-    marginBottom: "8px",
-  },
-  availLabel: { color: C.textSub, fontWeight: 600 },
-  availNum: (available) => ({
-    fontWeight: 700,
-    fontSize: "0.8rem",
-    color: available ? C.green : C.red,
-  }),
-  progressBg: {
-    width: "100%",
-    height: "5px",
-    borderRadius: "3px",
-    background: "rgba(255,255,255,0.08)",
-    marginBottom: "14px",
-    overflow: "hidden",
-  },
-  progressFill: (pct, available) => ({
-    height: "100%",
-    width: `${pct}%`,
-    borderRadius: "3px",
-    background: available
-      ? `linear-gradient(90deg, ${C.green}, #10b981)`
-      : `linear-gradient(90deg, ${C.red}, #ef4444)`,
-    transition: "width 0.5s ease",
-  }),
-  borrowBtn: (available) => ({
-    width: "100%",
-    padding: "9px 0",
-    borderRadius: "10px",
-    border: "none",
-    fontSize: "0.78rem",
-    fontWeight: 700,
-    cursor: available ? "pointer" : "not-allowed",
-    background: available
-      ? `linear-gradient(135deg, ${C.accentDark}, ${C.accent})`
-      : "rgba(255,255,255,0.07)",
-    color: available ? C.text : C.textSub,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "7px",
-    transition: "opacity 0.2s, transform 0.15s",
-    boxShadow: available ? `0 4px 14px ${C.accentDark}33` : "none",
-  }),
-
-  // ── empty state ──
-  empty: { textAlign: "center", padding: "64px 0" },
-  emptyIconWrap: { position: "relative", display: "inline-block", marginBottom: "16px" },
-  emptyGlow: {
-    position: "absolute",
-    inset: "-8px",
-    background: "rgba(255,255,255,0.06)",
-    borderRadius: "50%",
-    filter: "blur(16px)",
-  },
-  emptyTitle: { fontSize: "1.1rem", fontWeight: 700, color: C.text, margin: "0 0 6px" },
-  emptyText: { fontSize: "0.78rem", color: C.textSub, margin: 0 },
-
-  // ── loading ──
-  loadingWrap: {
-    minHeight: "100vh",
-    background: C.bg,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  spinnerOuter: {
-    width: "52px",
-    height: "52px",
-    borderRadius: "50%",
-    border: `3px solid ${C.accentDark}30`,
-    position: "relative",
-    marginBottom: "18px",
-  },
-  spinnerInner: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "50%",
-    border: `3px solid transparent`,
-    borderTopColor: C.accent,
-    animation: "spin 0.7s linear infinite",
-  },
-  loadingTitle: { fontSize: "1rem", color: C.text, fontWeight: 600, margin: "0 0 4px", textAlign: "center" },
-  loadingSubTitle: { fontSize: "0.72rem", color: C.textSub, margin: 0, textAlign: "center" },
-};
-
-const globalCSS = `
-  @keyframes twinkle { 0%{opacity:.25} 100%{opacity:.9} }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .book-card:hover { transform: translateY(-4px) !important; border-color: rgba(167,139,250,0.45) !important; box-shadow: 0 8px 28px rgba(108,99,255,0.18) !important; }
-  .book-card:hover .book-title { color: ${C.accent} !important; }
-  .book-borrow:hover:not(:disabled) { opacity: 0.82; transform: scale(1.03); }
-  .books-input:focus { border-color: rgba(167,139,250,0.6) !important; box-shadow: 0 0 8px rgba(167,139,250,0.25); }
-  .books-select:focus { border-color: rgba(167,139,250,0.6) !important; }
-  .books-select option { background: #1a1535; color: #fff; }
-`;
-
-// ─── stars (stable per mount) ───
-const stars = Array.from({ length: 160 }, () => ({
-  top: `${Math.random() * 100}%`,
-  left: `${Math.random() * 100}%`,
-  delay: `${Math.random() * 3}s`,
-  opacity: Math.random() * 0.5 + 0.2,
-}));
 
 export default function Books() {
   const [books, setBooks] = useState([]);
@@ -438,90 +62,61 @@ export default function Books() {
   const categories = ["all", ...new Set(books.map((b) => b.category))];
   const availCount = filteredBooks.filter((b) => b.available_copies > 0).length;
 
-  // ── loading ──
   if (loading) {
     return (
-      <div style={styles.loadingWrap}>
-        <style>{globalCSS}</style>
-        <div style={{ textAlign: "center" }}>
-          <div style={styles.spinnerOuter}>
-            <div style={styles.spinnerInner} />
-          </div>
-          <p style={styles.loadingTitle}>Chargement des livres…</p>
-          <p style={styles.loadingSubTitle}>Veuillez patienter</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-[#1a1b41] rounded-full animate-spin"></div>
+          <p className="text-gray-600 font-medium">Chargement des livres...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <style>{globalCSS}</style>
-
-      {/* ── notification toast ── */}
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Notification Toast */}
       {notification && (
-        <div style={{
-          position: "fixed", top: "20px", right: "20px", zIndex: 100,
-          background: `linear-gradient(135deg, ${C.green}, #10b981)`,
-          color: "#fff", padding: "12px 22px", borderRadius: "12px",
-          fontSize: "0.78rem", fontWeight: 600, boxShadow: "0 6px 20px rgba(52,211,153,0.35)",
-          animation: "fadeUp 0.25s ease-out",
-        }}>
+        <div className="fixed top-6 right-6 z-50 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm animate-fadeIn">
           {notification}
         </div>
       )}
 
-      {/* ── stars bg ── */}
-      <div style={styles.starfield}>
-        {stars.map((s, i) => (
-          <div key={i} style={{
-            position: "absolute", width: "2px", height: "2px", borderRadius: "50%",
-            background: "#fff", top: s.top, left: s.left,
-            animation: `twinkle 3s ease-in-out ${s.delay} infinite alternate`,
-            opacity: s.opacity,
-          }} />
-        ))}
-        <div style={{ position: "absolute", top: "8%", right: "6%", width: "240px", height: "240px", borderRadius: "50%", background: "radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%)", filter: "blur(38px)" }} />
-        <div style={{ position: "absolute", bottom: "12%", left: "6%", width: "180px", height: "180px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 70%)", filter: "blur(34px)" }} />
-      </div>
-
-      {/* ── main content ── */}
-      <div style={styles.content}>
-
-        {/* header */}
-        <div style={styles.headerRow}>
-          <div style={styles.headerIconWrap}>
-            <div style={styles.headerIconGlow} />
-            <div style={styles.headerIcon}>
-              <Library size={24} color={C.accent} />
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#1a1b41] to-[#2a2b51] rounded-xl flex items-center justify-center shadow-lg">
+              <Library size={24} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Bibliothèque</h1>
+              <p className="text-sm text-gray-600">Explorez notre collection de livres</p>
             </div>
           </div>
-          <div>
-            <h1 style={styles.headerTitle}>Bibliothèque</h1>
-            <p style={styles.headerSub}>Explorez notre collection de livres</p>
-          </div>
         </div>
+      </div>
 
-        {/* search + filter */}
-        <div style={styles.searchRow}>
-          <div style={styles.searchWrap}>
-            <Search size={16} color={C.accent} style={styles.searchIcon} />
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Search & Filter Row */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              className="books-input"
               type="text"
-              placeholder="Rechercher par titre ou auteur…"
+              placeholder="Rechercher par titre ou auteur..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all text-sm"
             />
           </div>
-          <div style={styles.filterWrap}>
-            <Filter size={16} color={C.accent} style={styles.filterIcon} />
+          <div className="relative min-w-[200px]">
+            <Filter size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <select
-              className="books-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              style={styles.filterSelect}
+              className="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all text-sm appearance-none cursor-pointer bg-white"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -529,112 +124,138 @@ export default function Books() {
                 </option>
               ))}
             </select>
-            <svg style={styles.filterArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.textSub} strokeWidth="2.5">
-              <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
-        {/* stats bar */}
-        <div style={styles.statsBar}>
-          <div style={styles.statItem}>
-            <div style={styles.statBubble(C.accent)}>
-              <BookMarked size={17} color={C.accent} />
+        {/* Stats Bar */}
+        <div className="flex items-center gap-6 flex-wrap bg-white border border-gray-100 rounded-2xl p-4 mb-8 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+              <BookMarked size={20} className="text-indigo-600" />
             </div>
             <div>
-              <p style={styles.statNum(C.text)}>{filteredBooks.length} <span style={{ fontSize: "0.68rem", fontWeight: 500, color: C.textSub }}>livre{filteredBooks.length !== 1 ? "s" : ""} trouvé{filteredBooks.length !== 1 ? "s" : ""}</span></p>
+              <p className="text-sm font-semibold text-gray-900">
+                {filteredBooks.length} <span className="text-xs text-gray-500 font-normal">livre{filteredBooks.length !== 1 ? "s" : ""} trouvé{filteredBooks.length !== 1 ? "s" : ""}</span>
+              </p>
             </div>
           </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <div style={styles.statBubble(C.green)}>
-              <Sparkles size={17} color={C.green} />
+          <div className="w-px h-8 bg-gray-200"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+              <Sparkles size={20} className="text-green-600" />
             </div>
             <div>
-              <p style={styles.statNum(C.green)}>{availCount} <span style={{ fontSize: "0.68rem", fontWeight: 500, color: C.textSub }}>disponible{availCount !== 1 ? "s" : ""}</span></p>
+              <p className="text-sm font-semibold text-green-600">
+                {availCount} <span className="text-xs text-gray-500 font-normal">disponible{availCount !== 1 ? "s" : ""}</span>
+              </p>
             </div>
           </div>
         </div>
 
-        {/* ── books grid ── */}
+        {/* Books Grid */}
         {filteredBooks.length === 0 ? (
-          <div style={styles.empty}>
-            <div style={styles.emptyIconWrap}>
-              <div style={styles.emptyGlow} />
-              <BookOpen size={56} color={C.textSub} strokeWidth={1.2} style={{ position: "relative" }} />
-            </div>
-            <h3 style={styles.emptyTitle}>Aucun livre trouvé</h3>
-            <p style={styles.emptyText}>Essayez de modifier vos critères de recherche</p>
+          <div className="text-center py-20">
+            <BookOpen size={64} className="mx-auto text-gray-300 mb-4" />
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Aucun livre trouvé</h3>
+            <p className="text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "14px" }}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredBooks.map((book) => {
               const avail = book.available_copies > 0;
               const pct = (book.available_copies / book.total_copies) * 100;
+
               return (
-                <div key={book.id} className="book-card" style={styles.bookCard}>
-                  {/* top accent */}
-                  <div style={styles.cardAccent(avail)} />
+                <div key={book.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
+                  {/* Top Accent */}
+                  <div className={`h-1 ${avail ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}></div>
+                  
+                  {/* Book Cover Image */}
+                  <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+                    {book.image_url ? (
+                      <img 
+                        src={book.image_url} 
+                        alt={book.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className={`absolute inset-0 ${book.image_url ? 'hidden' : 'flex'} items-center justify-center bg-gradient-to-br from-[#1a1b41] to-[#2a2b51]`}>
+                      <BookOpen size={48} className="text-white/40" />
+                    </div>
+                    {/* Category Badge */}
+                    <div className="absolute top-3 right-3">
+                      <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-sm text-indigo-700 border border-indigo-100 shadow-sm">
+                        {book.category}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5 flex flex-col flex-1">
+                    {/* Title */}
+                    <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2 mb-3 group-hover:text-[#1a1b41] transition-colors">
+                      {book.title}
+                    </h3>
 
-                  <div style={styles.cardBody}>
-                    {/* title + category */}
-                    <div style={styles.cardTitleRow}>
-                      <h3 className="book-title" style={styles.cardTitle}>{book.title}</h3>
-                      <span style={styles.cardCategory}>{book.category}</span>
+                    {/* Author */}
+                    <div className="flex items-center gap-2 mb-2 text-xs text-gray-600">
+                      <UserIcon size={14} />
+                      <span className="truncate">{book.author}</span>
                     </div>
 
-                    {/* author */}
-                    <div style={styles.cardMeta}>
-                      <div style={styles.cardMetaIcon()}>
-                        <UserIcon size={13} color={C.textSub} />
-                      </div>
-                      <span>{book.author}</span>
-                    </div>
-
-                    {/* year */}
-                    <div style={styles.cardMeta}>
-                      <div style={styles.cardMetaIcon()}>
-                        <Calendar size={13} color={C.textSub} />
-                      </div>
+                    {/* Year */}
+                    <div className="flex items-center gap-2 mb-4 text-xs text-gray-600">
+                      <Calendar size={14} />
                       <span>{book.publication_year}</span>
                     </div>
 
-                    <div style={styles.cardSpacer} />
-                    <div style={styles.cardDivider} />
+                    <div className="border-t border-gray-100 pt-4 mt-auto">
+                      {/* Availability */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-gray-600">Disponibilité</span>
+                        <span className={`text-xs font-bold ${avail ? 'text-green-600' : 'text-red-600'}`}>
+                          {book.available_copies} / {book.total_copies}
+                        </span>
+                      </div>
 
-                    {/* availability */}
-                    <div style={styles.availRow}>
-                      <span style={styles.availLabel}>Disponibilité</span>
-                      <span style={styles.availNum(avail)}>{book.available_copies} / {book.total_copies}</span>
-                    </div>
-                    <div style={styles.progressBg}>
-                      <div style={styles.progressFill(pct, avail)} />
-                    </div>
+                      {/* Progress Bar */}
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${avail ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}
+                          style={{ width: `${pct}%` }}
+                        ></div>
+                      </div>
 
-                    {/* borrow btn */}
-                    <button
-                      className="book-borrow"
-                      style={styles.borrowBtn(avail)}
-                      disabled={!avail || borrowing === book.id}
-                      onClick={() => handleBorrow(book.id)}
-                    >
-                      {borrowing === book.id ? (
-                        <>
-                          <div style={{
-                            width: "16px", height: "16px", borderRadius: "50%",
-                            border: `2px solid ${C.text}44`, borderTopColor: C.text,
-                            animation: "spin 0.6s linear infinite",
-                          }} />
-                          Traitement…
-                        </>
-                      ) : avail ? (
-                        <>
-                          <BookOpen size={16} /> Emprunter
-                        </>
-                      ) : (
-                        "Indisponible"
-                      )}
-                    </button>
+                      {/* Borrow Button */}
+                      <button
+                        disabled={!avail || borrowing === book.id}
+                        onClick={() => handleBorrow(book.id)}
+                        className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                          avail
+                            ? 'bg-[#1a1b41] text-white hover:bg-[#2a2b51] active:scale-95'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        {borrowing === book.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            Traitement...
+                          </>
+                        ) : avail ? (
+                          <>
+                            <BookOpen size={16} />
+                            Emprunter
+                          </>
+                        ) : (
+                          "Indisponible"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -642,6 +263,16 @@ export default function Books() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

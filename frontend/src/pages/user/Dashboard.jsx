@@ -13,194 +13,9 @@ import {
   TrendingUp,
   AlertCircle,
   LogOut,
+  ArrowRight,
+  Package,
 } from "lucide-react";
-
-// ─── Shared palette (matches Login / Register) ───
-const C = {
-  bg: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
-  card: "rgba(255,255,255,0.07)",
-  cardHover: "rgba(255,255,255,0.12)",
-  border: "rgba(255,255,255,0.15)",
-  borderPurple: "rgba(167,139,250,0.3)",
-  text: "#ffffff",
-  textSub: "rgba(255,255,255,0.55)",
-  accent: "#a78bfa",
-  accentDark: "#6c63ff",
-  pink: "#ec4899",
-  green: "#34d399",
-  blue: "#60a5fa",
-  red: "#f87171",
-};
-
-const styles = {
-  // ── layout ──
-  page: {
-    minHeight: "100vh",
-    background: C.bg,
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-  },
-  starfield: { position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" },
-  content: { position: "relative", zIndex: 10, padding: "28px 24px", maxWidth: "1100px", margin: "0 auto" },
-
-  // ── header ──
-  header: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "16px" },
-  headerLeft: {},
-  headerTitle: { fontSize: "1.75rem", fontWeight: 700, color: C.text, margin: 0 },
-  headerSub: { fontSize: "0.85rem", color: C.textSub, marginTop: "4px" },
-  headerSubAccent: { color: C.accent, fontWeight: 600 },
-
-  // ── user card (top-right) ──
-  userCard: {
-    display: "flex", alignItems: "center", gap: "12px",
-    background: C.card, backdropFilter: "blur(12px)",
-    border: `1px solid ${C.borderPurple}`, borderRadius: "14px",
-    padding: "10px 16px", transition: "background 0.2s",
-  },
-  avatarWrap: { position: "relative" },
-  avatar: {
-    width: "42px", height: "42px", borderRadius: "10px",
-    background: `linear-gradient(135deg, ${C.accentDark}, ${C.pink})`,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontSize: "1.1rem", fontWeight: 700, color: C.text,
-    boxShadow: `0 4px 14px ${C.accentDark}44`,
-  },
-  onlineDot: {
-    position: "absolute", bottom: "-2px", right: "-2px",
-    width: "11px", height: "11px", borderRadius: "50%",
-    background: C.green, border: "2px solid #1a1535",
-  },
-  userInfo: {},
-  userName: { fontSize: "0.82rem", fontWeight: 600, color: C.text, margin: 0 },
-  userRole: { fontSize: "0.7rem", color: C.textSub, margin: 0 },
-
-  // ── logout btn ──
-  logoutBtn: {
-    background: "none", border: `1px solid ${C.border}`, borderRadius: "10px",
-    color: C.textSub, cursor: "pointer", padding: "8px 10px",
-    display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem",
-    transition: "all 0.2s",
-  },
-
-  // ── stats grid ──
-  statsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "28px" },
-  statCard: (color) => ({
-    background: C.card, backdropFilter: "blur(12px)",
-    border: `1px solid ${color}33`, borderRadius: "16px",
-    padding: "20px", transition: "transform 0.2s, background 0.2s",
-  }),
-  statIcon: (color) => ({
-    width: "40px", height: "40px", borderRadius: "10px",
-    background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center",
-    marginBottom: "14px",
-  }),
-  statValue: { fontSize: "2rem", fontWeight: 700, color: C.text, margin: "0 0 2px" },
-  statLabel: (color) => ({ fontSize: "0.75rem", color, fontWeight: 500, margin: 0 }),
-  statBadge: (color) => ({
-    display: "inline-block", fontSize: "0.6rem", fontWeight: 700,
-    color, background: `${color}18`, padding: "2px 7px", borderRadius: "6px",
-    marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px",
-  }),
-
-  // ── two-col ──
-  twoCol: { display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "18px", marginBottom: "28px" },
-
-  // ── glass card (reusable) ──
-  glass: {
-    background: C.card, backdropFilter: "blur(12px)",
-    border: `1px solid ${C.borderPurple}`, borderRadius: "16px", padding: "22px",
-  },
-  glassTitleRow: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" },
-  glassTitle: { fontSize: "1rem", fontWeight: 700, color: C.text, margin: 0 },
-  glassTitleBtn: {
-    background: "none", border: "none", color: C.accent,
-    fontSize: "0.72rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px",
-    fontWeight: 600,
-  },
-
-  // ── activity item ──
-  activityItem: {
-    display: "flex", alignItems: "center", gap: "12px",
-    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: "12px", padding: "12px", marginBottom: "10px", transition: "background 0.2s",
-  },
-  activityIcon: (color) => ({
-    width: "36px", height: "36px", borderRadius: "9px", flexShrink: 0,
-    background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center",
-  }),
-  activityTitle: { fontSize: "0.8rem", fontWeight: 600, color: C.text, margin: "0 0 2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-  activityDate: (color) => ({ fontSize: "0.68rem", color, margin: 0 }),
-
-  // ── quick action btn ──
-  quickBtn: (grad, shadow, borderColor) => ({
-    width: "100%", background: grad, backdropFilter: "blur(12px)",
-    border: `1px solid ${borderColor}`, borderRadius: "14px",
-    padding: "14px 16px", cursor: "pointer", marginBottom: "10px",
-    display: "flex", alignItems: "center", gap: "14px",
-    transition: "transform 0.2s, background 0.2s", textAlign: "left",
-  }),
-  quickBtnIcon: (grad, shadow) => ({
-    width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0,
-    background: grad, display: "flex", alignItems: "center", justifyContent: "center",
-    boxShadow: shadow,
-  }),
-  quickBtnTitle: { fontSize: "0.8rem", fontWeight: 600, color: C.text, margin: "0 0 1px" },
-  quickBtnSub: (color) => ({ fontSize: "0.68rem", color, margin: 0 }),
-
-  // ── search ──
-  searchWrap: { position: "relative", maxWidth: "320px", width: "100%" },
-  searchInput: {
-    width: "100%", padding: "9px 12px 9px 34px", borderRadius: "10px",
-    border: `1px solid ${C.borderPurple}`, background: "rgba(255,255,255,0.06)",
-    color: C.text, fontSize: "0.78rem", outline: "none", boxSizing: "border-box",
-  },
-  searchIcon: { position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)" },
-
-  // ── book card ──
-  bookCard: {
-    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "12px", padding: "14px", display: "flex", gap: "12px",
-    transition: "background 0.2s, transform 0.2s",
-  },
-  bookCover: {
-    width: "56px", height: "78px", flexShrink: 0, borderRadius: "8px",
-    background: `linear-gradient(135deg, ${C.accentDark}, ${C.pink})`,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    boxShadow: `0 4px 12px ${C.accentDark}33`,
-  },
-  bookTitle: { fontSize: "0.78rem", fontWeight: 600, color: C.text, margin: "0 0 2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-  bookAuthor: { fontSize: "0.68rem", color: C.textSub, margin: "0 0 6px" },
-  bookBadge: (available) => ({
-    display: "inline-block", fontSize: "0.6rem", fontWeight: 600, padding: "2px 7px", borderRadius: "5px",
-    background: available ? `${C.green}18` : `${C.red}18`,
-    color: available ? C.green : C.red, marginRight: "6px",
-  }),
-  bookCopies: { fontSize: "0.6rem", color: C.textSub },
-  borrowBtn: (available) => ({
-    marginTop: "8px", width: "100%", padding: "5px 0", borderRadius: "7px", border: "none",
-    fontSize: "0.72rem", fontWeight: 600, cursor: available ? "pointer" : "not-allowed",
-    background: available ? C.accentDark : "rgba(255,255,255,0.08)",
-    color: available ? C.text : C.textSub, transition: "opacity 0.2s",
-  }),
-
-  // ── empty state ──
-  empty: { textAlign: "center", padding: "36px 0" },
-  emptyIcon: { opacity: 0.35, marginBottom: "10px" },
-  emptyText: { fontSize: "0.78rem", color: C.textSub, margin: 0 },
-};
-
-// ── tiny keyframes injected once ──
-const globalCSS = `
-  @keyframes twinkle { 0%{opacity:.25} 100%{opacity:.9} }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-  .dash-stat:hover { transform: translateY(-3px) !important; background: rgba(255,255,255,0.11) !important; }
-  .dash-quick:hover { transform: translateY(-2px) !important; }
-  .dash-book:hover { background: rgba(255,255,255,0.09) !important; transform: translateY(-2px) !important; }
-  .dash-activity:hover { background: rgba(255,255,255,0.08) !important; }
-  .dash-input:focus { border-color: rgba(167,139,250,0.6) !important; box-shadow: 0 0 8px rgba(167,139,250,0.25); }
-  .dash-borrow:hover:not(:disabled) { opacity: 0.82; }
-`;
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
@@ -284,9 +99,8 @@ export default function UserDashboard() {
       return statusB - statusA;
     });
 
-  const recentLoans = userLoans.slice(0, 2);
+  const recentLoans = userLoans.slice(0, 3);
 
-  // ── Détermine si l'utilisateur connecté a déjà ce livre en cours ──
   const isBorrowedByCurrentUser = (bookId) => {
     return userLoans.some(
       (loan) =>
@@ -294,210 +108,209 @@ export default function UserDashboard() {
     );
   };
 
-  const stars = Array.from({ length: 160 }, (_, i) => ({
-    top: `${Math.random() * 100}%`,
-    left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 3}s`,
-    opacity: Math.random() * 0.5 + 0.2,
-  }));
-
   if (loading) {
     return (
-      <div style={{ ...styles.page, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <style>{globalCSS}</style>
-        <p style={{ color: C.text, fontSize: "1rem" }}>Chargement…</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-[#1a1b41] rounded-full animate-spin"></div>
+          <p className="text-gray-600 font-medium">Chargement...</p>
+        </div>
       </div>
     );
   }
 
-  const loanColor = (loan) => {
-    if (loan.return_date) return C.green;
-    return new Date(loan.due_date) < new Date() ? C.red : C.blue;
-  };
-
-  const LoanIcon = ({ loan }) => {
-    if (loan.return_date) return <CheckCircle size={18} color={C.green} />;
-    if (new Date(loan.due_date) < new Date()) return <AlertCircle size={18} color={C.red} />;
-    return <Clock size={18} color={C.blue} />;
+  const getLoanStatus = (loan) => {
+    if (loan.return_date) return { color: "green", label: "Retourné", Icon: CheckCircle };
+    if (new Date(loan.due_date) < new Date()) return { color: "red", label: "En retard", Icon: AlertCircle };
+    return { color: "blue", label: "En cours", Icon: Clock };
   };
 
   return (
-    <div style={styles.page}>
-      <style>{globalCSS}</style>
-
-      <div style={styles.starfield}>
-        {stars.map((s, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute", width: "2px", height: "2px", borderRadius: "50%",
-              background: "#fff", top: s.top, left: s.left,
-              animation: `twinkle 3s ease-in-out ${s.delay} infinite alternate`,
-              opacity: s.opacity,
-            }}
-          />
-        ))}
-        <div style={{ position: "absolute", top: "10%", right: "5%", width: "260px", height: "260px", borderRadius: "50%", background: "radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%)", filter: "blur(40px)" }} />
-        <div style={{ position: "absolute", bottom: "15%", left: "8%", width: "200px", height: "200px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 70%)", filter: "blur(36px)" }} />
-      </div>
-
-      <div style={styles.content}>
-
-        <div style={styles.header}>
-          <div style={styles.headerLeft}>
-            <h1 style={styles.headerTitle}>Tableau de bord</h1>
-            <p style={styles.headerSub}>
-              Bienvenue, <span style={styles.headerSubAccent}>{user?.username || "Invité"}</span>
-            </p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={styles.userCard}>
-              <div style={styles.avatarWrap}>
-                <div style={styles.avatar}>{user?.username?.charAt(0).toUpperCase() || "I"}</div>
-                <div style={styles.onlineDot} />
-              </div>
-              <div style={styles.userInfo}>
-                <p style={styles.userName}>{user?.username || "Invité"}</p>
-                <p style={styles.userRole}>Membre actif</p>
-              </div>
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Bienvenue, <span className="text-[#1a1b41] font-semibold">{user?.username || "Invité"}</span>
+              </p>
             </div>
-            <button style={styles.logoutBtn} onClick={logout}>
-              <LogOut size={13} /> Déconnexion
-            </button>
+            <div className="flex items-center gap-4">
+              {/* User Card */}
+              <div className="hidden sm:flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2">
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#1a1b41] to-[#2a2b51] rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">{user?.username?.charAt(0).toUpperCase() || "I"}</span>
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{user?.username || "Invité"}</p>
+                  <p className="text-xs text-gray-500">Membre actif</p>
+                </div>
+              </div>
+              {/* Logout Button */}
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#1a1b41] bg-white border border-gray-200 hover:border-gray-300 rounded-xl transition-colors"
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:inline">Déconnexion</span>
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div style={styles.statsGrid}>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[
-            { value: totalBorrowed, label: "Livres empruntés", badge: "Total", color: C.accent, Icon: BookOpen },
-            { value: activeLoan, label: "En cours", badge: "Actif", color: C.blue, Icon: Clock },
-            { value: returned, label: "Retournés", badge: "OK", color: C.green, Icon: CheckCircle },
-            { value: overdue, label: "En retard", badge: "!", color: C.red, Icon: AlertCircle },
-          ].map((s, i) => (
-            <div key={i} className="dash-stat" style={styles.statCard(s.color)}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                <div style={styles.statIcon(s.color)}>
-                  <s.Icon size={20} color={s.color} />
+            { value: totalBorrowed, label: "Livres empruntés", badge: "Total", color: "indigo", Icon: BookOpen },
+            { value: activeLoan, label: "En cours", badge: "Actif", color: "blue", Icon: Clock },
+            { value: returned, label: "Retournés", badge: "OK", color: "green", Icon: CheckCircle },
+            { value: overdue, label: "En retard", badge: "!", color: "red", Icon: AlertCircle },
+          ].map((stat, idx) => (
+            <div key={idx} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-12 h-12 rounded-xl bg-${stat.color}-50 flex items-center justify-center`}>
+                  <stat.Icon className={`text-${stat.color}-600`} size={24} />
                 </div>
-                <span style={styles.statBadge(s.color)}>{s.badge}</span>
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-bold bg-${stat.color}-50 text-${stat.color}-700`}>
+                  {stat.badge}
+                </span>
               </div>
-              <p style={styles.statValue}>{s.value}</p>
-              <p style={styles.statLabel(s.color)}>{s.label}</p>
+              <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+              <p className={`text-sm font-medium text-${stat.color}-600`}>{stat.label}</p>
             </div>
           ))}
         </div>
 
-        <div style={styles.twoCol}>
-          <div style={styles.glass}>
-            <div style={styles.glassTitleRow}>
-              <h2 style={styles.glassTitle}>Activité récente</h2>
-              <button className="dash-quick" style={styles.glassTitleBtn} onClick={() => setShowBooks(!showBooks)}>
-                <TrendingUp size={13} />
+        {/* Two Column Layout */}
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          {/* Recent Activity */}
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-gray-900">Activité récente</h2>
+              <button
+                onClick={() => setShowBooks(!showBooks)}
+                className="flex items-center gap-2 text-sm font-medium text-[#1a1b41] hover:text-[#2a2b51] transition-colors"
+              >
+                <TrendingUp size={16} />
                 {showBooks ? "Masquer" : "Explorer les livres"}
               </button>
             </div>
 
             {recentLoans.length > 0 ? (
-              recentLoans.map((loan) => (
-                <div key={loan.id} className="dash-activity" style={styles.activityItem}>
-                  <div style={styles.activityIcon(loanColor(loan))}>
-                    <LoanIcon loan={loan} />
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={styles.activityTitle}>
-                      {loan.return_date ? "Retourné" : "Emprunté"} «{loan.book?.title || "Livre inconnu"}»
-                    </p>
-                    <p style={styles.activityDate(loanColor(loan))}>
-                      {loan.return_date
-                        ? new Date(loan.return_date).toLocaleDateString()
-                        : `À rendre : ${new Date(loan.due_date).toLocaleDateString()}`}
-                    </p>
-                  </div>
-                </div>
-              ))
+              <div className="space-y-3">
+                {recentLoans.map((loan) => {
+                  const status = getLoanStatus(loan);
+                  return (
+                    <div key={loan.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                      <div className={`w-10 h-10 rounded-lg bg-${status.color}-50 flex items-center justify-center flex-shrink-0`}>
+                        <status.Icon className={`text-${status.color}-600`} size={20} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {loan.return_date ? "Retourné" : "Emprunté"} «{loan.book?.title || "Livre inconnu"}»
+                        </p>
+                        <p className={`text-xs text-${status.color}-600 mt-0.5`}>
+                          {loan.return_date
+                            ? new Date(loan.return_date).toLocaleDateString()
+                            : `À rendre : ${new Date(loan.due_date).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <div style={styles.empty}>
-                <BookOpen size={40} color={C.accent} style={styles.emptyIcon} />
-                <p style={styles.emptyText}>Aucun emprunt récent</p>
+              <div className="text-center py-12">
+                <BookOpen size={48} className="mx-auto text-gray-300 mb-3" />
+                <p className="text-sm text-gray-500">Aucun emprunt récent</p>
               </div>
             )}
           </div>
 
-          <div>
-            <h2 style={{ ...styles.glassTitle, marginBottom: "14px" }}>Actions rapides</h2>
-
+          {/* Quick Actions */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-900 px-1">Actions rapides</h2>
+            
             {[
-              { label: "Explorer les livres", sub: `Parcourir ${books.length} livres`, route: "/user/books", grad: `linear-gradient(135deg, ${C.accentDark}22, ${C.pink}18)`, iconGrad: `linear-gradient(135deg, ${C.accentDark}, ${C.pink})`, shadow: `0 4px 14px ${C.accentDark}33`, border: `${C.accentDark}44`, subColor: C.accent, Icon: BookOpen },
-              { label: "Mes emprunts", sub: `${activeLoan} en cours`, route: "/user/loans", grad: `linear-gradient(135deg, ${C.blue}22, #06b6d422)`, iconGrad: `linear-gradient(135deg, ${C.blue}, #06b6d4)`, shadow: `0 4px 14px ${C.blue}33`, border: `${C.blue}44`, subColor: C.blue, Icon: Calendar },
-              { label: "Mon profil", sub: "Gérer mes infos", route: "/user/profile", grad: `linear-gradient(135deg, ${C.green}22, #10b98122)`, iconGrad: `linear-gradient(135deg, ${C.green}, #10b981)`, shadow: `0 4px 14px ${C.green}33`, border: `${C.green}44`, subColor: C.green, Icon: UserIcon },
-            ].map((a, i) => (
-              <button key={i} className="dash-quick" style={styles.quickBtn(a.grad, a.shadow, a.border)} onClick={() => navigate(a.route)}>
-                <div style={styles.quickBtnIcon(a.iconGrad, a.shadow)}>
-                  <a.Icon size={20} color="#fff" />
+              { label: "Explorer les livres", sub: `Parcourir ${books.length} livres`, route: "/user/books", color: "indigo", Icon: BookOpen },
+              { label: "Mes emprunts", sub: `${activeLoan} en cours`, route: "/user/loans", color: "blue", Icon: Calendar },
+              { label: "Mon profil", sub: "Gérer mes infos", route: "/user/profile", color: "green", Icon: UserIcon },
+            ].map((action, idx) => (
+              <button
+                key={idx}
+                onClick={() => navigate(action.route)}
+                className="w-full flex items-center gap-4 p-4 bg-white border border-gray-200 hover:border-[#1a1b41] rounded-xl shadow-sm hover:shadow-md transition-all group"
+              >
+                <div className={`w-12 h-12 rounded-lg bg-${action.color}-50 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <action.Icon className={`text-${action.color}-600`} size={22} />
                 </div>
-                <div>
-                  <p style={styles.quickBtnTitle}>{a.label}</p>
-                  <p style={styles.quickBtnSub(a.subColor)}>{a.sub}</p>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-bold text-gray-900">{action.label}</p>
+                  <p className={`text-xs text-${action.color}-600 mt-0.5`}>{action.sub}</p>
                 </div>
+                <ArrowRight size={18} className="text-gray-400 group-hover:text-[#1a1b41] transition-colors" />
               </button>
             ))}
           </div>
         </div>
 
+        {/* Books Explorer */}
         {showBooks && (
-          <div style={{ ...styles.glass, animation: "fadeUp 0.3s ease-out" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginBottom: "18px" }}>
-              <h2 style={styles.glassTitle}>Explorer les livres</h2>
-              <div style={styles.searchWrap}>
-                <Search size={15} color={C.accent} style={styles.searchIcon} />
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 animate-fadeIn">
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+              <h2 className="text-lg font-bold text-gray-900">Explorer les livres</h2>
+              <div className="relative max-w-xs w-full">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  className="dash-input"
                   type="text"
-                  placeholder="Rechercher…"
+                  placeholder="Rechercher un livre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value || "")}
-                  style={styles.searchInput}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all text-sm"
                 />
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px" }}>
-              {filteredAndSortedBooks.map((book) => {
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAndSortedBooks.slice(0, 6).map((book) => {
                 const alreadyBorrowedByUser = isBorrowedByCurrentUser(book.id);
                 const canBorrow = book.available_copies > 0 && !alreadyBorrowedByUser;
 
                 return (
-                  <div key={book.id} className="dash-book" style={styles.bookCard}>
-                    <div style={styles.bookCover}>
-                      <BookOpen size={22} color="#fff" />
+                  <div key={book.id} className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <div className="w-16 h-22 bg-gradient-to-br from-[#1a1b41] to-[#2a2b51] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                      {book.image_url ? (
+                        <img src={book.image_url} alt={book.title} className="w-full h-full object-cover rounded-lg" />
+                      ) : (
+                        <BookOpen size={24} className="text-white" />
+                      )}
                     </div>
-                    <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
-                      <p style={styles.bookTitle}>{book.title || "Sans titre"}</p>
-                      <p style={styles.bookAuthor}>{book.author || "Auteur inconnu"}</p>
-                      <div>
-                        <span style={styles.bookBadge(canBorrow)}>
-                          {alreadyBorrowedByUser
-                            ? "Déjà emprunté par vous"
-                            : canBorrow
-                            ? "Disponible"
-                            : "Indisponible"}
-                        </span>
-                        <span style={styles.bookCopies}>
-                          {book.available_copies ?? 0}/{book.total_copies ?? "?"}
-                        </span>
+                    <div className="flex-1 min-w-0 flex flex-col">
+                      <p className="text-sm font-bold text-gray-900 truncate">{book.title || "Sans titre"}</p>
+                      <p className="text-xs text-gray-500 mb-2">{book.author || "Auteur inconnu"}</p>
+                      <div className="mt-auto">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded ${canBorrow ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                            {alreadyBorrowedByUser ? "Déjà emprunté" : canBorrow ? "Disponible" : "Indisponible"}
+                          </span>
+                          <span className="text-xs text-gray-500">{book.available_copies ?? 0}/{book.total_copies ?? "?"}</span>
+                        </div>
+                        <button
+                          disabled={!canBorrow || borrowing === book.id}
+                          onClick={() => handleBorrowBook(book.id)}
+                          className="w-full py-1.5 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-[#1a1b41] text-white hover:bg-[#2a2b51]"
+                        >
+                          {borrowing === book.id ? "Emprunt..." : alreadyBorrowedByUser ? "Déjà emprunté" : "Emprunter"}
+                        </button>
                       </div>
-                      <button
-                        className="dash-borrow"
-                        style={styles.borrowBtn(canBorrow)}
-                        disabled={!canBorrow || borrowing === book.id}
-                        onClick={() => handleBorrowBook(book.id)}
-                      >
-                        {borrowing === book.id
-                          ? "Emprunt…"
-                          : alreadyBorrowedByUser
-                          ? "Déjà emprunté"
-                          : "Emprunter"}
-                      </button>
                     </div>
                   </div>
                 );
@@ -505,16 +318,38 @@ export default function UserDashboard() {
             </div>
 
             {filteredAndSortedBooks.length === 0 && (
-              <div style={styles.empty}>
-                <Search size={36} color={C.accent} style={styles.emptyIcon} />
-                <p style={styles.emptyText}>
+              <div className="text-center py-12">
+                <Search size={48} className="mx-auto text-gray-300 mb-3" />
+                <p className="text-sm text-gray-500">
                   {searchTerm ? "Aucun livre trouvé" : "Aucun livre disponible"}
                 </p>
+              </div>
+            )}
+
+            {filteredAndSortedBooks.length > 6 && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => navigate("/user/books")}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#1a1b41] text-white font-semibold rounded-xl hover:bg-[#2a2b51] transition-colors"
+                >
+                  Voir tous les livres
+                  <ArrowRight size={18} />
+                </button>
               </div>
             )}
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

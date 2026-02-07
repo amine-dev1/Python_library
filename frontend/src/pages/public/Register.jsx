@@ -1,164 +1,8 @@
 import { register as registerApi } from "../../api/auth.api";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Auth.css";
-
-const styles = {
-  loginPage: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    position: "relative",
-    overflow: "hidden",
-    background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
-  },
-  authContainer: {
-    position: "relative",
-    zIndex: 10,
-    width: "100%",
-    maxWidth: "340px",
-    padding: "32px 28px",
-    borderRadius: "16px",
-    backdropFilter: "blur(12px)",
-    backgroundColor: "rgba(255,255,255,0.07)",
-    border: "1px solid rgba(255,255,255,0.15)",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-    textAlign: "center",
-    color: "#fff",
-  },
-  logo: {
-    fontSize: "1.8rem",
-    marginBottom: "12px",
-    display: "block",
-  },
-  h2: {
-    fontSize: "1.3rem",
-    margin: "0 0 4px",
-  },
-  h3: {
-    fontSize: "0.8rem",
-    margin: "0 0 20px",
-    opacity: 0.6,
-    fontWeight: 400,
-  },
-  textbox: {
-    position: "relative",
-    marginBottom: "16px",
-  },
-  input: {
-    width: "100%",
-    height: "40px",
-    fontSize: "0.85rem",
-    padding: "0 10px",
-    borderRadius: "8px",
-    border: "1px solid rgba(255,255,255,0.2)",
-    backgroundColor: "rgba(255,255,255,0.08)",
-    color: "#fff",
-    outline: "none",
-    boxSizing: "border-box",
-  },
-  label: {
-    position: "absolute",
-    top: "50%",
-    left: "10px",
-    transform: "translateY(-50%)",
-    fontSize: "0.8rem",
-    color: "rgba(255,255,255,0.5)",
-    pointerEvents: "none",
-    transition: "all 0.2s ease",
-  },
-  errorMessage: {
-    color: "#ff6b6b",
-    fontSize: "0.75rem",
-    marginBottom: "8px",
-    textAlign: "left",
-  },
-  submitBtn: {
-    width: "100%",
-    height: "38px",
-    fontSize: "0.85rem",
-    fontWeight: 600,
-    borderRadius: "8px",
-    border: "none",
-    background: "linear-gradient(135deg, #6c63ff, #a78bfa)",
-    color: "#fff",
-    cursor: "pointer",
-    transition: "opacity 0.2s",
-  },
-  footerText: {
-    fontSize: "0.75rem",
-    marginTop: "18px",
-    opacity: 0.6,
-  },
-  signUpLink: {
-    background: "none",
-    border: "none",
-    color: "#a78bfa",
-    fontSize: "0.75rem",
-    cursor: "pointer",
-    padding: 0,
-    fontWeight: 600,
-  },
-  // ── background elements ──
-  starfield: {
-    position: "absolute",
-    inset: 0,
-    zIndex: 0,
-  },
-  moon: {
-    position: "absolute",
-    top: "8%",
-    right: "12%",
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle at 35% 35%, #ffe8a3, #d4a017)",
-    boxShadow: "0 0 30px rgba(255,220,100,0.4)",
-    zIndex: 1,
-  },
-  crater: {
-    position: "absolute",
-    borderRadius: "50%",
-    background: "rgba(0,0,0,0.15)",
-  },
-  nebula: {
-    position: "absolute",
-    top: "20%",
-    left: "10%",
-    width: "300px",
-    height: "300px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%)",
-    zIndex: 1,
-    filter: "blur(40px)",
-  },
-  orbit: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    width: "400px",
-    height: "400px",
-    borderRadius: "50%",
-    border: "1px solid rgba(255,255,255,0.05)",
-    transform: "translate(-50%, -50%)",
-    zIndex: 1,
-  },
-  shootingStar: {
-    position: "absolute",
-    width: "80px",
-    height: "2px",
-    background: "linear-gradient(to right, #fff, transparent)",
-    zIndex: 1,
-    opacity: 0,
-    animation: "shoot 4s linear infinite",
-  },
-  planet: {
-    position: "absolute",
-    borderRadius: "50%",
-    zIndex: 1,
-  },
-};
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { UserPlus, ArrowLeft } from "lucide-react";
+import authBg from "../../assets/wooden-surface-with-books-glasses-pen.jpg";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -168,170 +12,202 @@ export default function Register() {
     password: "",
   });
   const [error, setError] = useState(null);
-  const starfieldRef = useRef(null);
-
-  // Generate 200 random stars once on mount
-  useEffect(() => {
-    const container = starfieldRef.current;
-    if (!container || container.children.length > 0) return;
-
-    for (let i = 0; i < 200; i++) {
-      const star = document.createElement("div");
-      star.style.cssText = `
-        position: absolute;
-        width: 2px;
-        height: 2px;
-        border-radius: 50%;
-        background: #fff;
-        animation: twinkle 3s ease-in-out infinite alternate;
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        animation-delay: ${Math.random() * 3}s;
-        opacity: ${Math.random() * 0.7 + 0.3};
-      `;
-      container.appendChild(star);
-    }
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
+
     try {
       await registerApi(formData);
       navigate("/login");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.detail || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes twinkle {
-          0% { opacity: 0.3; }
-          100% { opacity: 1; }
-        }
-        @keyframes shoot {
-          0% { top: 10%; left: -10%; opacity: 1; transform: rotate(35deg); }
-          100% { top: 40%; left: 110%; opacity: 0; transform: rotate(35deg); }
-        }
-        .login-input:focus {
-          border-color: rgba(167,139,250,0.6) !important;
-          box-shadow: 0 0 8px rgba(167,139,250,0.3);
-        }
-        .login-input:focus + .login-label,
-        .login-input:not(:placeholder-shown) + .login-label {
-          top: -8px;
-          font-size: 0.65rem;
-          background: rgba(30,20,60,0.8);
-          padding: 0 6px;
-          border-radius: 4px;
-        }
-        .submit-btn-register:hover {
-          opacity: 0.85;
-        }
-      `}</style>
+    <div className="min-h-screen flex flex-col lg:flex-row font-sans">
+      {/* Left Side - Background Image with Overlay */}
+      <div 
+        className="lg:w-1/2 min-h-[300px] lg:min-h-screen bg-cover bg-center relative"
+        style={{ backgroundImage: `url(${authBg})` }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1b41]/95 to-[#2a2b51]/90"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-white">
+          <div className="max-w-md text-center">
+            {/* Logo */}
+            <Link to="/" className="inline-flex items-center justify-center gap-3 mb-6 hover:opacity-80 transition-opacity">
+              <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/20">
+                <span className="text-white font-bold text-3xl">L</span>
+              </div>
+              <span className="text-4xl font-bold text-white">
+                BiblioTech
+              </span>
+            </Link>
 
-      <div style={styles.loginPage}>
-        {/* ── starfield ── */}
-        <div style={styles.starfield} ref={starfieldRef} />
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              Rejoignez notre communauté
+            </h1>
+            <p className="text-xl text-indigo-200 leading-relaxed">
+              Créez votre compte et commencez à gérer votre bibliothèque dès aujourd'hui.
+            </p>
 
-        {/* ── moon ── */}
-        <div style={styles.moon}>
-          <div style={{ ...styles.crater, width: "18px", height: "18px", top: "22%", left: "25%" }} />
-          <div style={{ ...styles.crater, width: "10px", height: "10px", top: "55%", left: "60%" }} />
-          <div style={{ ...styles.crater, width: "14px", height: "14px", top: "65%", left: "20%" }} />
-          <div style={{ ...styles.crater, width: "8px", height: "8px", top: "30%", left: "65%" }} />
+            {/* Features */}
+            <div className="mt-10 space-y-4 text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <span className="text-white text-sm">✓</span>
+                </div>
+                <p className="text-indigo-100">Interface intuitive et facile à utiliser</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <span className="text-white text-sm">✓</span>
+                </div>
+                <p className="text-indigo-100">Support 24/7 pour vous accompagner</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <span className="text-white text-sm">✓</span>
+                </div>
+                <p className="text-indigo-100">Sécurité et confidentialité garanties</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ── nebula ── */}
-        <div style={styles.nebula} />
+        {/* Back Link - Visible on mobile */}
+        <Link 
+          to="/" 
+          className="absolute top-6 left-6 lg:hidden inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium z-20"
+        >
+          <ArrowLeft size={20} />
+          Retour
+        </Link>
+      </div>
 
-        {/* ── orbit ── */}
-        <div style={styles.orbit} />
+      {/* Right Side - Register Form */}
+      <div className="lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-gray-50">
+        <div className="w-full max-w-md">
+          {/* Back Link - Desktop */}
+          <Link 
+            to="/" 
+            className="hidden lg:inline-flex items-center gap-2 text-gray-600 hover:text-[#1a1b41] transition-colors font-medium mb-8"
+          >
+            <ArrowLeft size={20} />
+            Retour à l'accueil
+          </Link>
 
-        {/* ── shooting stars ── */}
-        <div style={{ ...styles.shootingStar, animationDelay: "0s" }} />
-        <div style={{ ...styles.shootingStar, animationDelay: "2s", top: "30%", left: "20%" }} />
-        <div style={{ ...styles.shootingStar, animationDelay: "4s", top: "60%", left: "50%" }} />
-
-        {/* ── planets ── */}
-        <div style={{ ...styles.planet, width: "40px", height: "40px", bottom: "15%", left: "8%", background: "radial-gradient(circle at 35% 35%, #e88a6a, #c0392b)" }} />
-        <div style={{ ...styles.planet, width: "24px", height: "24px", top: "60%", right: "15%", background: "radial-gradient(circle at 35% 35%, #6abfce, #2e86ab)" }} />
-
-        {/* ── auth card ── */}
-        <div style={styles.authContainer}>
-          <span style={styles.logo}>✦</span>
-          <h2 style={styles.h2}>Create Account</h2>
-          <h3 style={styles.h3}>Join us today</h3>
-
-          <form onSubmit={handleSubmit} noValidate>
-            {/* username */}
-            <div style={styles.textbox}>
-              <input
-                className="login-input"
-                type="text"
-                placeholder=" "
-                required
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                style={styles.input}
-              />
-              <label className="login-label" style={styles.label}>Username</label>
+          {/* Register Card */}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mt-8 lg:mt-0">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Créer un compte</h2>
+              <p className="text-gray-600">Rejoignez-nous dès aujourd'hui</p>
             </div>
 
-            {/* email */}
-            <div style={styles.textbox}>
-              <input
-                className="login-input"
-                type="email"
-                placeholder=" "
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={styles.input}
-              />
-              <label className="login-label" style={styles.label}>Email</label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Username Field */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Nom d'utilisateur
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
+                  placeholder="Choisissez un nom d'utilisateur"
+                />
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Adresse email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
+                  placeholder="votre@email.com"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Mot de passe
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1a1b41] focus:ring-2 focus:ring-[#1a1b41]/20 outline-none transition-all bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
+                  placeholder="Créez un mot de passe sécurisé"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  Minimum 6 caractères recommandés
+                </p>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#1a1b41] hover:bg-[#2a2b51] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-900/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Inscription...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={20} />
+                    S'inscrire
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Login Link */}
+            <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+              <p className="text-gray-600 text-sm">
+                Vous avez déjà un compte ?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  className="text-[#1a1b41] hover:text-[#2a2b51] font-bold transition-colors"
+                >
+                  Connectez-vous
+                </button>
+              </p>
             </div>
-
-            {/* password */}
-            <div style={styles.textbox}>
-              <input
-                className="login-input"
-                type="password"
-                placeholder=" "
-                required
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                style={styles.input}
-              />
-              <label className="login-label" style={styles.label}>Password</label>
-            </div>
-
-            {error && <p style={styles.errorMessage}>{error}</p>}
-
-            <button
-              type="submit"
-              className="submit-btn-register"
-              style={styles.submitBtn}
-            >
-              Sign Up
-            </button>
-          </form>
-
-          <p style={styles.footerText}>
-            Already have an account?{" "}
-            <button
-              type="button"
-              style={styles.signUpLink}
-              onClick={() => navigate("/login")}
-            >
-              Log in
-            </button>
-          </p>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

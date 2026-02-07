@@ -206,7 +206,7 @@ export default function AdminUsers() {
                 placeholder="Rechercher par nom, email ou rôle..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all placeholder:text-gray-400 text-sm font-medium"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a1b41] focus:border-transparent transition-all placeholder:text-gray-400 text-sm font-medium text-gray-900"
               />
             </div>
 

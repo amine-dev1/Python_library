@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getBooks } from "../../api/books.api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import heroBg from "../../assets/hero-bg.jpg";
 import { BookOpen, ShieldCheck, Users, ArrowRight, Library, Search, Clock, Book, Check, Star, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -202,6 +202,7 @@ export default function Home() {
                             books.map((book) => (
                                 <BookCard
                                     key={book.id || book._id}
+                                    id={book.id || book._id}
                                     title={book.title}
                                     author={book.author}
                                     image={book.image_url}
@@ -356,9 +357,11 @@ function StepCard({ number, title, description }) {
 }
 
 
-function BookCard({ title, author, image, category, color = "bg-indigo-50" }) {
+function BookCard({ id, title, author, image, category, color = "bg-indigo-50" }) {
+    const navigate = useNavigate();
+    
     return (
-        <div className="group cursor-pointer">
+        <div onClick={() => navigate(`/books/${id}`)} className="group cursor-pointer">
             <div className={`aspect-[2/3] ${!image ? color : 'bg-gray-100'} rounded-xl mb-4 relative overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1`}>
                 {image ? (
                     <img src={image} alt={title} className="w-full h-full object-cover" />

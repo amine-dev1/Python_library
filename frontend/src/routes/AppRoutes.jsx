@@ -10,6 +10,7 @@ import Catalog from "../pages/public/Catalog";
 import Login from "../pages/public/Login";
 import Register from "../pages/public/Register";
 import ForgotPassword from "../pages/public/ForgotPassword";
+import BookDetails from "../pages/public/BookDetails";
 
 import UserDashboard from "../pages/user/Dashboard";
 import Books from "../pages/user/Books";
@@ -26,6 +27,8 @@ export default function AppRoutes() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<Catalog />} />
+            <Route path="/books/:id" element={<BookDetails />} />
+
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

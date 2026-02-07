@@ -268,8 +268,13 @@ export default function Catalog() {
 }
 
 function CatalogBookCard({ book, onBorrow }) {
+    const navigate = useNavigate();
+
     return (
-        <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1">
+        <div 
+            onClick={() => navigate(`/books/${book.id || book._id}`)}
+            className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1 cursor-pointer"
+        >
             <div className="aspect-[2/3] bg-gray-100 relative overflow-hidden">
                 {book.image_url ? (
                     <img src={book.image_url} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -300,7 +305,10 @@ function CatalogBookCard({ book, onBorrow }) {
                 </div>
 
                 <button
-                    onClick={onBorrow}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onBorrow();
+                    }}
                     disabled={book.available === false}
                     className={`mt-4 w-full py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2
                         ${book.available !== false
